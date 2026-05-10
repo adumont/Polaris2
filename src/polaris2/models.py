@@ -2,15 +2,15 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from polaris2.utils.angles import format_position
+
 
 class Position(BaseModel):
     lat: float
     lon: float
 
     def __str__(self) -> str:
-        ns = "N" if self.lat >= 0 else "S"
-        ew = "E" if self.lon >= 0 else "W"
-        return f"{abs(self.lat):.4f}°{ns}  {abs(self.lon):.4f}°{ew}"
+        return format_position(self.lat, self.lon)
 
 
 class SextantReading(BaseModel):

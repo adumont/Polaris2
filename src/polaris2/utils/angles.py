@@ -40,3 +40,36 @@ def parse_angle(value: float) -> float:
         return ddmmss_to_deg(value)
     else:
         return ddmmmm_to_deg(value)
+
+
+def _abs_deg_min_sec(v: float) -> tuple[int, int, float]:
+    d = int(v)
+    m = int((v - d) * 60)
+    s = (v - d - m / 60) * 3600
+    return d, m, s
+
+
+def _abs_deg_min(v: float) -> tuple[int, float]:
+    d = int(v)
+    m = (v - d) * 60
+    return d, m
+
+
+def format_ddmmss(deg: float) -> str:
+    d, m, s = _abs_deg_min_sec(abs(deg))
+    return f"{d:d}°{m:02d}'{s:04.1f}\""
+
+
+def format_ddmmmm(deg: float) -> str:
+    d, m = _abs_deg_min(abs(deg))
+    return f"{d:d}°{m:05.2f}'"
+
+
+def format_position(lat: float, lon: float) -> str:
+    ns = "N" if lat >= 0 else "S"
+    ew = "E" if lon >= 0 else "W"
+    lat_s = format_ddmmss(lat)
+    lat_m = format_ddmmmm(lat)
+    lon_s = format_ddmmss(lon)
+    lon_m = format_ddmmmm(lon)
+    return f"{lat_s} {ns}  {lon_s} {ew}  |  {lat_m} {ns}  {lon_m} {ew}"
