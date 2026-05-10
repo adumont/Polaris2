@@ -126,6 +126,7 @@ def plot_chart(scenario: Scenario, zoom: float = 1.5) -> plt.Figure:
         ax.text(fx + off, fy + off, "Fix", color="red", fontweight="bold", fontsize=10)
 
     _plot_compass(ax, scenario, half, colors, cx, cy)
-    ax.legend(loc="lower right", fontsize=9)
+    if any(r.selected for r in scenario.sight_reductions):
+        ax.legend(loc="lower right", fontsize=9)
     plt.tight_layout()
     return fig

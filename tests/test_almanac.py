@@ -1,7 +1,20 @@
 import pytest
-from polaris2.core.almanac import body_alt_az, sun_alt_az, visible_bodies
+from polaris2.core.almanac import body_alt_az, body_alt_az_multiple, moon_alt_az, sun_alt_az, visible_bodies
 from polaris2.models import Position
 from datetime import datetime, timezone, UTC
+
+import pandas as pd
+
+from polaris2.core import almanac
+from polaris2.core.almanac import _get_stars
+
+
+class TestGetStars:
+    def test_cached_stars_returned_on_second_call(self, monkeypatch):
+        fake_df = pd.DataFrame({"test": [1]})
+        almanac._STARS = fake_df
+        result = _get_stars()
+        assert result is fake_df
 
 
 class TestSunAltAz:
@@ -60,6 +73,25 @@ class TestBodyAltAz:
             body_alt_az("Pluto", dt, pos)
 
 
+class TestBodyAltAzMultiple:
+    def test_returns_dict_with_multiple_bodies(self):
+        pos = Position(lat=30.0, lon=-40.0)
+        dt = datetime(2026, 6, 21, 14, 0, 0, tzinfo=UTC)
+        result = body_alt_az_multiple(["Sun", "Moon"], dt, pos)
+        assert "Sun" in result
+        assert "Moon" in result
+        assert len(result) == 2
+
+
+class TestMoonAltAz:
+    def test_returns_values(self):
+        pos = Position(lat=30.0, lon=-40.0)
+        dt = datetime(2026, 6, 21, 14, 0, 0, tzinfo=UTC)
+        alt, az = moon_alt_az(dt, pos)
+        assert isinstance(alt, float)
+        assert isinstance(az, float)
+
+
 class TestVisibleBodies:
     def test_sun_always_visible_daytime(self):
         pos = Position(lat=30.0, lon=-40.0)
@@ -73,3 +105,9 @@ class TestVisibleBodies:
         vis = visible_bodies(dt, pos, 0.0)
         planet_names = {"Venus", "Mars", "Jupiter", "Saturn"}
         assert any(p in vis for p in planet_names)
+
+    def test_handles_exception_gracefully(self):
+        pos = Position(lat=30.0, lon=-40.0)
+        dt = datetime(2026, 6, 21, 14, 0, 0, tzinfo=UTC)
+        vis = visible_bodies(dt, pos, 99.9)
+        assert isinstance(vis, list)

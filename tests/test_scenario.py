@@ -1,8 +1,11 @@
 import math
 import random
+from datetime import UTC, datetime
+
 import pytest
+
+from polaris2.core.scenario import dr_position, random_atlantic_position, random_daylight_datetime
 from polaris2.models import Position
-from polaris2.core.scenario import random_atlantic_position, dr_position
 
 
 class TestDRPosition:
@@ -41,3 +44,20 @@ class TestRandomAtlanticPosition:
             pos = random_atlantic_position()
             assert 10.0 <= pos.lat <= 50.0
             assert -80.0 <= pos.lon <= -10.0
+
+
+class TestRandomDaylightDatetime:
+    def test_returns_datetime_and_position(self):
+        dt, pos = random_daylight_datetime()
+        assert isinstance(dt, datetime)
+        assert isinstance(pos, Position)
+
+    def test_fallback_when_sun_never_above_horizon(self, monkeypatch):
+        def never_above(*args, **kwargs):
+            return False
+
+        monkeypatch.setattr("polaris2.core.scenario._sun_above_horizon", never_above)
+        dt, pos = random_daylight_datetime(max_attempts=5)
+        assert dt == datetime(2026, 6, 21, 14, 0, 0, tzinfo=UTC)
+        assert pos.lat == 35.0
+        assert pos.lon == -40.0

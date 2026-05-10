@@ -1,10 +1,16 @@
 import math
 import pytest
 from polaris2.utils.angles import (
+    _abs_deg_min,
     deg_to_ddmmss,
     deg_to_ddmmmm,
     ddmmss_to_deg,
     ddmmmm_to_deg,
+    format_angle,
+    format_azimuth,
+    format_ddmmmm,
+    format_ddmmss,
+    format_position,
     parse_angle,
     body_label,
 )
@@ -74,6 +80,62 @@ class TestParseAngle:
     def test_ddmmmm(self):
         result = parse_angle(451500.0)
         assert result == pytest.approx(45.25, abs=1e-4)
+
+    def test_ddmmmm_when_rest_under_100(self):
+        result = parse_angle(450030.0)
+        assert result == pytest.approx(45.005, abs=1e-4)
+
+    def test_negative_ddmmmm(self):
+        result = parse_angle(-450030.0)
+        assert result == pytest.approx(-45.005, abs=1e-4)
+
+
+class TestFormatFunctions:
+    def test_format_ddmmss(self):
+        result = format_ddmmss(45.5)
+        assert result == "45°30'00\""
+
+    def test_format_ddmmmm(self):
+        result = format_ddmmmm(45.5)
+        assert result == "45°30.00'"
+
+    def test_format_angle_default_dms(self):
+        result = format_angle(45.5)
+        assert result == "45°30'00\""
+
+    def test_format_angle_dmm(self):
+        result = format_angle(45.5, "dmm")
+        assert result == "45°30.00'"
+
+    def test_format_azimuth(self):
+        result = format_azimuth(90.0)
+        assert result == "90.0°"
+
+    def test_format_position_default_dms(self):
+        result = format_position(35.5, -40.25)
+        assert "N" in result
+        assert "W" in result
+
+    def test_format_position_south_east(self):
+        result = format_position(-35.5, 40.25)
+        assert "S" in result
+        assert "E" in result
+
+    def test_format_position_dmm(self):
+        result = format_position(35.5, -40.25, "dmm")
+        assert "N" in result
+
+
+class TestAbsDegMin:
+    def test_returns_deg_and_min(self):
+        d, m = _abs_deg_min(45.5)
+        assert d == 45
+        assert m == pytest.approx(30.0, abs=1e-4)
+
+    def test_abs_deg_min_used_with_abs(self):
+        d, m = _abs_deg_min(abs(-10.25))
+        assert d == 10
+        assert m == pytest.approx(15.0, abs=1e-4)
 
 
 class TestBodyLabel:

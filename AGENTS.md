@@ -17,7 +17,7 @@
 - pytest in tests/
 - ruff for lint+format (run: `uv run ruff check --fix .` and `uv run ruff format`)
     - fix all error even minor. we aim a 0 error. don't ignore
-- Test Coverage target: minimum 90%
+- Test Coverage target: minimum 90% overall, and at least 80% coverage in every file. No exclusions in pyproject.toml.
 - Run: `uv run pytest tests/ -v`
 - Cover streamlit tests using AppTest
 

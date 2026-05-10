@@ -1,7 +1,12 @@
 import math
 import pytest
 from polaris2.models import Position, Scenario, SightReduction, Fix
-from polaris2.core.reduction import compute_fix_error, recompute_fix, solve_fix_least_squares
+from polaris2.core.reduction import (
+    compute_fix_error,
+    recompute_fix,
+    solve_fix_least_squares,
+    solve_fix_single,
+)
 from datetime import datetime, timezone, UTC
 
 
@@ -17,6 +22,41 @@ class TestComputeFixError:
         fix = Fix(lat=31.0, lon=-40.0)
         fix = compute_fix_error(fix, pos)
         assert fix.error_nmi == pytest.approx(60.0, abs=0.1)
+
+
+class TestSolveFixSingle:
+    def test_basic(self):
+        dr = Position(lat=30.0, lon=-40.0)
+        reduction = SightReduction(
+            body_name="Sun",
+            ho=45.0,
+            hc=45.1,
+            intercept_nmi=-6.0,
+            azimut_zn=90.0,
+            lat_dr=30.0,
+            lon_dr=-40.0,
+            utc=datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC),
+        )
+        fix = solve_fix_single(reduction, dr)
+        assert fix.iterations == 1
+        assert isinstance(fix.lat, float)
+        assert isinstance(fix.lon, float)
+
+    def test_toward_north(self):
+        dr = Position(lat=30.0, lon=-40.0)
+        reduction = SightReduction(
+            body_name="Sun",
+            ho=45.0,
+            hc=44.0,
+            intercept_nmi=60.0,
+            azimut_zn=0.0,
+            lat_dr=30.0,
+            lon_dr=-40.0,
+            utc=datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC),
+        )
+        fix = solve_fix_single(reduction, dr)
+        assert fix.lat == pytest.approx(31.0, abs=0.01)
+        assert fix.lon == pytest.approx(-40.0, abs=0.01)
 
 
 class TestSolveFixLeastSquares:
@@ -49,6 +89,11 @@ class TestSolveFixLeastSquares:
         assert isinstance(fix.lat, float)
         assert isinstance(fix.lon, float)
         assert fix.iterations >= 1
+
+    def test_too_few_bodies_breaks_early(self):
+        dr = Position(lat=30.0, lon=-40.0)
+        fix = solve_fix_least_squares([], dr)
+        assert isinstance(fix, Fix)
 
 
 class TestRecomputeFix:

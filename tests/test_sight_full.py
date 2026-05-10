@@ -20,5 +20,4 @@ class TestComputeHo:
         assert reading.body_name == "Moon"
         assert isinstance(reading.ho, float)
 
-    def test_star_ho_skip(self):
-        pytest.skip("nabac.star not downloaded")
+

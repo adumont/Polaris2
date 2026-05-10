@@ -48,8 +48,9 @@ ignore = ["SIM117", "PLR0913", "S311", "S110", "PLW0603", "E501"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 
-[tool.coverage.run]
-omit = ["src/polaris2/webui/*", "src/polaris2/tui/*"]
+[tool.coverage.report]
+show_missing = true
+fail_under = 90
 
 [dependency-groups]
 dev = [
