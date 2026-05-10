@@ -14,7 +14,7 @@ def semidiameter_deg(body_name: str) -> float:
     radius_km = RADIOS_CUERPOS_KM.get(body_name)
     if radius_km is None:
         return 0.0
-    is_sun = body_name in ("Sun", "Sol")
+    is_sun = body_name == "Sun"
     distance_km = 149600000.0 if is_sun else 384400.0
     sd_rad = math.atan2(radius_km, distance_km)
     return math.degrees(sd_rad)

@@ -1,3 +1,6 @@
+from polaris2.config import NAVPAC_STAR_INDEX, PLANET_BODIES
+
+
 def deg_to_ddmmss(value: float) -> float:
     sign = -1 if value < 0 else 1
     v = abs(value)
@@ -80,7 +83,14 @@ def format_angle(deg: float, fmt: str = "dms") -> str:
 
 
 def body_label(name: str) -> str:
-    return f"{name}(L)" if name in ("Sun", "Moon") else name
+    if name in ("Sun", "Moon"):
+        return name
+    if name in PLANET_BODIES:
+        return name
+    idx = NAVPAC_STAR_INDEX.get(name)
+    if idx is not None:
+        return f"{name} ({idx})"
+    return name
 
 
 def format_position(lat: float, lon: float, fmt: str = "dms") -> str:

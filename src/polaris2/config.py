@@ -15,11 +15,16 @@ NAVPAC_STAR_INDEX = {
     "Antares": 42,
 }
 
+PLANET_BODIES = {
+    "Venus": "venus",
+    "Mars": "mars",
+    "Jupiter": "jupiter barycenter",
+    "Saturn": "saturn barycenter",
+}
+
 RADIOS_CUERPOS_KM = {
     "Sun": 695700.0,
-    "Sol": 695700.0,
     "Moon": 1737.4,
-    "Luna": 1737.4,
 }
 
 DEFAULT_HE_FT = 10.0

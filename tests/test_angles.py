@@ -6,6 +6,7 @@ from polaris2.utils.angles import (
     ddmmss_to_deg,
     ddmmmm_to_deg,
     parse_angle,
+    body_label,
 )
 
 
@@ -73,3 +74,25 @@ class TestParseAngle:
     def test_ddmmmm(self):
         result = parse_angle(451500.0)
         assert result == pytest.approx(45.25, abs=1e-4)
+
+
+class TestBodyLabel:
+    def test_sun(self):
+        assert body_label("Sun") == "Sun"
+
+    def test_moon(self):
+        assert body_label("Moon") == "Moon"
+
+    def test_planet(self):
+        assert body_label("Venus") == "Venus"
+        assert body_label("Mars") == "Mars"
+        assert body_label("Jupiter") == "Jupiter"
+        assert body_label("Saturn") == "Saturn"
+
+    def test_star_with_index(self):
+        assert body_label("Antares") == "Antares (42)"
+        assert body_label("Polaris") == "Polaris (0)"
+        assert body_label("Sirius") == "Sirius (18)"
+
+    def test_unknown(self):
+        assert body_label("Foobar") == "Foobar"

@@ -2,7 +2,14 @@ import argparse
 import random
 from datetime import datetime
 
-from polaris2.config import BEST_ALT_MAX, BEST_ALT_MIN, DEFAULT_ERROR_NMI, DEFAULT_HE_FT, NAVPAC_STAR_INDEX
+from polaris2.config import (
+    BEST_ALT_MAX,
+    BEST_ALT_MIN,
+    DEFAULT_ERROR_NMI,
+    DEFAULT_HE_FT,
+    NAVPAC_STAR_INDEX,
+    PLANET_BODIES,
+)
 from polaris2.core.almanac import body_alt_az
 from polaris2.core.reduction import compute_fix_error, compute_hc_zn, solve_fix_least_squares
 from polaris2.core.scenario import dr_position, random_daylight_datetime
@@ -13,11 +20,12 @@ from polaris2.utils.io import save_scenario
 
 _MIN_VISIBLE_ALT = 0.0
 _MIN_BODIES_FOR_FIX = 2
-_MAX_SELECT = 3
+_MIN_BODIES_TARGET = 3
+_MAX_SELECT = 4
 
 
 def _visible_bodies_above(dt: datetime, pos: Position) -> dict[str, float]:
-    names = ["Sun", "Moon"] + list(NAVPAC_STAR_INDEX)
+    names = ["Sun", "Moon"] + list(PLANET_BODIES) + list(NAVPAC_STAR_INDEX)
     results = {}
     for name in names:
         try:
@@ -50,11 +58,11 @@ def run_scenario(
 ) -> Scenario:
     if seed is not None:
         random.seed(seed)
-    for _attempt in range(10):
+    for _attempt in range(20):
         dt, real_pos = random_daylight_datetime()
         dr = dr_position(real_pos, error_nmi)
         bodies = _select_best_bodies(dt, real_pos)
-        if len(bodies) >= _MIN_BODIES_FOR_FIX:
+        if len(bodies) >= _MIN_BODIES_TARGET:
             break
     scenario = Scenario(
         real_position=real_pos,

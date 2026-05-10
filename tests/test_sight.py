@@ -19,12 +19,12 @@ class TestDipCorrection:
 
 class TestSemidiameter:
     def test_sun(self):
-        sd = semidiameter_deg("Sol")
+        sd = semidiameter_deg("Sun")
         assert sd > 0.25
         assert sd < 0.28
 
     def test_moon(self):
-        sd = semidiameter_deg("Luna")
+        sd = semidiameter_deg("Moon")
         assert sd > 0.2
         assert sd < 0.3
 

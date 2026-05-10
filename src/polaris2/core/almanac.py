@@ -4,7 +4,7 @@ from pathlib import Path
 from skyfield.api import Loader, Star, wgs84
 from skyfield.data import stellarium
 
-from polaris2.config import NAVPAC_STAR_INDEX
+from polaris2.config import NAVPAC_STAR_INDEX, PLANET_BODIES
 from polaris2.models import Position
 from polaris2.utils.angles import round_to_arcsec
 
@@ -39,6 +39,8 @@ def body_alt_az(name: str, dt: datetime, pos: Position) -> tuple[float, float]:
         body = _EPHEMERIS["sun"]
     elif name == "Moon":
         body = _EPHEMERIS["moon"]
+    elif name in PLANET_BODIES:
+        body = _EPHEMERIS[PLANET_BODIES[name]]
     elif name in NAVPAC_STAR_INDEX:
         body = _skyfield_star(name)
     else:
@@ -63,19 +65,7 @@ def moon_alt_az(dt: datetime, pos: Position) -> tuple[float, float]:
 
 def visible_bodies(dt: datetime, pos: Position, min_alt: float = 10.0) -> list[str]:
     result = []
-    try:
-        alt_sun, _ = sun_alt_az(dt, pos)
-        if alt_sun > min_alt:
-            result.append("Sun")
-    except Exception:
-        pass
-    try:
-        alt_moon, _ = moon_alt_az(dt, pos)
-        if alt_moon > min_alt:
-            result.append("Moon")
-    except Exception:
-        pass
-    for name in NAVPAC_STAR_INDEX:
+    for name in ["Sun", "Moon"] + list(PLANET_BODIES) + list(NAVPAC_STAR_INDEX):
         try:
             alt, _ = body_alt_az(name, dt, pos)
             if alt > min_alt:
