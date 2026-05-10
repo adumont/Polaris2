@@ -79,6 +79,10 @@ def format_angle(deg: float, fmt: str = "dms") -> str:
     return format_ddmmss(deg)
 
 
+def body_label(name: str) -> str:
+    return f"{name}(L)" if name in ("Sun", "Moon") else name
+
+
 def format_position(lat: float, lon: float, fmt: str = "dms") -> str:
     ns = "N" if lat >= 0 else "S"
     ew = "E" if lon >= 0 else "W"

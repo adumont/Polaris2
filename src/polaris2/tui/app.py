@@ -8,7 +8,7 @@ from textual.widgets import Button, DataTable, Header, Input, Label, Static
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
 from polaris2.models import Position, Scenario
-from polaris2.utils.angles import format_angle
+from polaris2.utils.angles import body_label, format_angle
 
 
 class Polaris2TUI(App):
@@ -85,7 +85,7 @@ class Polaris2TUI(App):
         tbl.clear()
         for r in s.sextant_readings:
             tbl.add_row(
-                r.body_name,
+                body_label(r.body_name),
                 format_angle(r.ho),
                 format_angle(r.real_altitude),
                 f"{r.correction_total:+.4f}",
@@ -96,7 +96,7 @@ class Polaris2TUI(App):
         tbl.clear()
         for r in s.sight_reductions:
             tbl.add_row(
-                r.body_name,
+                body_label(r.body_name),
                 format_angle(r.hc),
                 format_angle(r.ho),
                 f"{r.alpha_nmi:+.2f}",

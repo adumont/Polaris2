@@ -7,7 +7,7 @@ from streamlit_folium import st_folium
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
 from polaris2.models import Position, Scenario
-from polaris2.utils.angles import format_angle
+from polaris2.utils.angles import body_label, format_angle
 
 
 def _setup_page():
@@ -55,7 +55,7 @@ def _draw_lop(sight, fix, dr, m):
         color=color,
         weight=2,
         opacity=0.8,
-        popup=f"{sight.body_name}: a={sight.alpha_nmi:+.1f} nmi, Zn={sight.azimut_zn:.0f} deg",
+        popup=f"{body_label(sight.body_name)}: a={sight.alpha_nmi:+.1f} nmi, Zn={sight.azimut_zn:.0f} deg",
     ).add_to(m)
 
 
@@ -125,7 +125,7 @@ def _display(scenario: Scenario, fmt: str = "dms"):
     for r in scenario.sextant_readings:
         readings_data.append(
             {
-                "Body": r.body_name,
+                "Body": body_label(r.body_name),
                 "Ho": format_angle(r.ho, fmt),
                 "Real Alt": format_angle(r.real_altitude, fmt),
                 "Corr (deg)": f"{r.correction_total:+.4f}",
@@ -137,7 +137,7 @@ def _display(scenario: Scenario, fmt: str = "dms"):
     for r in scenario.sight_reductions:
         red_data.append(
             {
-                "Body": r.body_name,
+                "Body": body_label(r.body_name),
                 "Hc": format_angle(r.hc, fmt),
                 "Ho": format_angle(r.ho, fmt),
                 "a (nmi)": f"{r.alpha_nmi:+.2f}",

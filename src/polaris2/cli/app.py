@@ -8,7 +8,7 @@ from polaris2.core.reduction import compute_fix_error, compute_hc_zn, solve_fix_
 from polaris2.core.scenario import dr_position, random_daylight_datetime
 from polaris2.core.sight import compute_ho
 from polaris2.models import Position, Scenario
-from polaris2.utils.angles import format_angle
+from polaris2.utils.angles import body_label, format_angle
 from polaris2.utils.io import save_scenario
 
 _MIN_VISIBLE_ALT = 0.0
@@ -94,14 +94,14 @@ def main():
     print()
     print("Sextant Readings (real):")
     for r in scenario.sextant_readings:
-        a = r.body_name
+        a = body_label(r.body_name)
         print(
             f"  {a:12s}  Ho = {format_angle(r.ho, fmt)}  (alt = {format_angle(r.real_altitude, fmt)}, corr = {r.correction_total:+.4f} deg)"
         )
     print()
     print("Sight Reductions (from DR):")
     for r in scenario.sight_reductions:
-        a = r.body_name
+        a = body_label(r.body_name)
         print(
             f"  {a:12s}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  alpha = {r.alpha_nmi:+.2f} nmi  Zn = {format_angle(r.azimut_zn, fmt)}"
         )
