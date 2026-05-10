@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "command": {
+    "commit": {
+      "template": "Run `git status` and `git diff` and `git log -5` to understand the current state of changes. Stage the relevant files (using git add on specific files, never `git add .`), then create a concise commit with a meaningful message following the project's commit conventions. Verify with `git status`.",
+      "description": "Stage changes and create a commit",
+      "agent": "build"
+    }
+  }
+}
