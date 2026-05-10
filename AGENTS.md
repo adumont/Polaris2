@@ -1,69 +1,52 @@
 # Context
 
 - uv based python app
-- cli (non interaactive), and TUI versions + streamlit WebUI version too
-- modular (not monolythic)
-- make use of daatclass o pydantic classes
-- persistence: save all in data.yaml file
-- implement test, aim for 75% test coverage
-- always ruff checks (you can use ruff check --fix) and ruff format
+- cli + TUI + Streamlit WebUI
+- modular, not monolithic
+- Pydantic models for all data
+- YAML persistence (data.yaml)
+- always test before you hand over your code as finished
 
-folders:
-- source in src/
-- tests in test/
-- documentation in docs/
+## Testing and Code Quality
 
-We can use for example:
-from skyfield.api import Loader, wgs84, Star
-from streamlit_folium import st_folium
+- pytest in tests/
+- ruff for lint+format (run: `uv run ruff check --fix .` and `uv run ruff format`)
+    - fix all error even minor. we aim a 0 error. don't ignore
+- coverage target: 75%
+- Run: `uv run pytest tests/ -v`
 
-Make a  README.md
+## Commit
 
-Update AGENTS.md as necesarry with your key desicions, strategies,...
+- Clean commit, can be single line (small commits) or multiline (when it's a massive change)
+- Never do a "git add .", add only the files you have touched!
 
+# Architecture
 
-# Task
+src/polaris2/
+├── config.py        # Constants: NAVPAC star index, body radii, bounds, defaults
+├── models.py        # Pydantic: Position, SextantReading, SightReduction, Fix, Scenario
+├── utils/
+│   ├── angles.py    # DD.MMSS <-> DD.MMmm <-> float deg conversions
+│   └── io.py        # YAML save/load for Scenario
+├── core/
+│   ├── scenario.py  # Random Atlantic pos, daylight datetime, DR at error
+│   ├── almanac.py   # Skyfield: body alt/az via observer=earth+latlon
+│   ├── sight.py     # Ho = apparent_alt + dip + SD (no double refraction)
+│   └── reduction.py # Hc, Zn, alpha=Hc-Ho, iterative LSQ fix
+├── cli/
+│   └── app.py       # argparse entry point
+├── tui/             # placeholder
+└── webui/
+    └── app.py       # Streamlit: dataframes + folium map
 
-- make an  app that will pick a point on earth in the Atlantic ocean, a date time (during the day, dayligh conditions, so not night!) --> Real Position (Lat, Lon)
-- error parameter, like 5 nmi
-- pick a random point, Estimated position (DR), at error from real position, any random direction
+# Key decisions
 
-- from Real Position, calculate the _real sextant reading_ for:
-
-the Sun, Moon (if visible) (Lower Limb), and some stars (only visible ones)
-
-NAVPAC_STAR_INDEX = {
-    "Polaris": 0,
-    "Vega": 49,
-    "Sirius": 18,
-    "Arcturus": 37,
-    "Canopus": 17,
-    "Rigel": 11,
-    "Procyon": 20,
-    "Betelgeuse": 16,
-    "Altair": 51,
-    "Aldebaran": 10,
-    "Deneb": 53,
-    "Fomalhaut": 56,
-    "Regulus": 26,
-    "Antares": 42,
-}
-
-RADIOS_CUERPOS_KM = {
-    "Sol": 695700.0,
-    "Luna": 1737.4,
-}
-
-assume He Height of Eye= 10 ft
-
-Angles and positions stored as float, entered as DD.MMSS or DD.MMmm (handle conversion to/from float). Always represented as float, DD.MMSS and DD.MMmm.
-
-
-For each reading, now, think as a navigator, we believe we are at estimated position, and take 3 of these these body sights reading and do sight reduction: Using almanach, calculate Alpha (nmi A/T away/Towards) and Azimuth Zn.
-
-Now with 3 sight reductions (or n>1), implement a solve_fix_least_squares that will calculate a FIX position using the least_squares method and return a FIX position
-
-Tell the error in nmi from Fix to real position.
-
-the Streamlit app can show all the data, several st.dataframes with all the data, and represent a map with the LOPs, Real position, Estimated position, and FIX, and show error measure in nmi
+- Skyfield 1.54 API: body.observe() requires observer = EARTH + wgs84.latlon()
+- Ho: uses Skyfield's apparent alt (includes refraction) + dip + SD for Sun/Moon
+- Hc: Skyfield apparent alt at DR position (no additional corrections)
+- alpha = Hc - Ho (nmi). Positive = DR closer to body than real position
+- LSQ solver: A = [cos(Zn), sin(Zn)], b = -alpha. Iterative with recomputed Hc
+- Best bodies: 30-60 deg altitude range, fall back to lower/upper, min 2 bodies
+- Sun + Moon are primary daytime bodies; stars rarely visible in daylight
+- Fix error via haversine formula, in nautical miles
 
