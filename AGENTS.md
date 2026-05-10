@@ -6,6 +6,8 @@
 - Pydantic models for all data
 - YAML persistence (data.yaml)
 - always test before you hand over your code as finished
+- Maintain the README.md (create if not there)
+- Maintain the AGENTS.md
 
 ## Testing and Code Quality
 
