@@ -1,0 +1,45 @@
+Screen {
+    background: $surface;
+}
+
+.section-title {
+    text-style: bold;
+    padding: 1 0 0 1;
+    color: $accent;
+}
+
+.settings-row {
+    height: 3;
+    padding: 0 1;
+}
+
+.settings-row > Input {
+    margin: 0 1 0 0;
+}
+
+.settings-row > Button {
+    width: 16;
+}
+
+.positions-row {
+    height: 3;
+    padding: 0 1;
+}
+
+.pos-card {
+    width: 1fr;
+    padding: 0 1;
+    border: solid $primary;
+    text-style: bold;
+}
+
+.info-panel {
+    padding: 1 1;
+    background: $boost;
+    color: $text;
+}
+
+.data-table {
+    height: auto;
+    margin: 0 1;
+}
