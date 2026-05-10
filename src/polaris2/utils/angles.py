@@ -98,4 +98,4 @@ def format_position(lat: float, lon: float, fmt: str = "dms") -> str:
     ew = "E" if lon >= 0 else "W"
     lat_s = format_angle(lat, fmt)
     lon_s = format_angle(lon, fmt)
-    return f"{lat_s} {ns}  {lon_s} {ew}"
+    return f"{lat_s} {ns}, {lon_s} {ew}"

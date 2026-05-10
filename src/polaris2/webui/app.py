@@ -118,12 +118,6 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
     c2.metric("Real Position", scenario.real_position.display(fmt))
     c3.metric("DR Position", scenario.estimated_position.display(fmt))
     c4.metric("DR Error", f"{scenario.dr_error_nmi:.1f} nmi")
-    if scenario.fix:
-        c1.metric("Fix Position", f"{Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}")
-        c2.metric("Fix Error", f"{scenario.fix.error_nmi:.2f} nmi")
-        c3, c4 = st.columns(2)
-        c3.metric("Fix Lat", f"{scenario.fix.lat:.4f}°")
-        c4.metric("Fix Lon", f"{scenario.fix.lon:.4f}°")
     st.subheader("Sextant Readings")
     readings_data = []
     for r in scenario.sextant_readings:
@@ -161,8 +155,14 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
             "I (nmi)": "I (nmi)",
             "Zn": "Zn",
         },
-        disabled=["idx", "Body", "Hc", "Ho", "a (nmi)", "Zn"],
+        disabled=["idx", "Body", "Hc", "Ho", "I (nmi)", "Zn"],
         hide_index=True,
+    )
+    st.caption(
+        "**Hc** = Computed altitude at DR · "
+        "**Ho** = Observed altitude at real position · "
+        "**I (nmi)** = Intercept (Ho − Hc, positive = Toward body) · "
+        "**Zn** = Azimuth of body"
     )
     if st.button("Recalculate Fix"):
         for row in edited:
@@ -170,6 +170,10 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
         recompute_fix(scenario)
         st.rerun()
     st.subheader("Charts")
+    if scenario.fix:
+        cc1, cc2 = st.columns(2)
+        cc1.metric("Fix Position", f"{Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}")
+        cc2.metric("Fix Error", f"{scenario.fix.error_nmi:.2f} nmi")
     col_map, col_chart = st.columns(2)
     with col_map:
         m = _build_map(scenario, fmt)
