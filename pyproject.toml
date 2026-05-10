@@ -56,7 +56,4 @@ dev = [
     "pytest-cov>=7.1.0",
 ]
 
-[tool.uv.tasks]
-web = "streamlit run src/polaris2/webui/app.py"
-
 [tool.uv.sources]
