@@ -1,11 +1,12 @@
 # Context
 
 - uv based python app
-- cli + TUI + Streamlit WebUI
+- cli + TUI (textual) + Streamlit WebUI
 - modular, not monolithic
 - Pydantic models for all data
 - YAML persistence (data.yaml)
-- always test before you hand over your code as finished
+- Always test before you hand over your code as finished
+    - when modifying code, maintain existing tests and/or add new tests as needed
 - Maintain the README.md (create if not there)
 - Maintain the AGENTS.md
 
