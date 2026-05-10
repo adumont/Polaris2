@@ -22,6 +22,7 @@ dependencies = [
 [project.scripts]
 polaris2 = "polaris2.cli.app:main"
 polaris2-tui = "polaris2.tui.app:main"
+polaris2-web = "polaris2.webui._launcher:main"
 
 [build-system]
 requires = ["setuptools"]

@@ -14,13 +14,15 @@ uv sync
 uv run polaris2 --seed 42
 
 # WebUI
-uv run streamlit run src/polaris2/webui/app.py
+uv run polaris2-web
 ```
 
 ## Usage
 
 ```
 uv run polaris2 [--error NMI] [--he FEET] [--seed N] [--output FILE]
+uv run polaris2-web                       # Streamlit WebUI
+uv run polaris2-tui                       # Textual TUI (placeholder)
 ```
 
 - `--error` — DR error in nautical miles (default: 5)
