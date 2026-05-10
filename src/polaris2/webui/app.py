@@ -132,7 +132,7 @@ def _display(scenario: Scenario, fmt: str = "dms"):
                 "Corr (deg)": f"{r.correction_total:+.4f}",
             }
         )
-    st.dataframe(readings_data, use_container_width=True)
+    st.dataframe(readings_data, width='stretch')
     st.subheader("Sight Reductions")
     red_data = []
     for r in scenario.sight_reductions:
@@ -145,7 +145,7 @@ def _display(scenario: Scenario, fmt: str = "dms"):
                 "Zn": format_angle(r.azimut_zn, fmt),
             }
         )
-    st.dataframe(red_data, use_container_width=True)
+    st.dataframe(red_data, width='stretch')
     st.subheader("Charts")
     if scenario.fix:
         c1, c2 = st.columns(2)
