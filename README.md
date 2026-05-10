@@ -2,6 +2,8 @@
 
 Celestial navigation scenario generator and sight reduction simulator. Generate random Atlantic Ocean scenarios with real/DR positions, compute sextant readings, perform sight reductions, and solve least-squares fixes.
 
+App is published at https://polaris2.streamlit.app.
+
 ## Quickstart
 
 ```bash
