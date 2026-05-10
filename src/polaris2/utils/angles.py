@@ -57,7 +57,7 @@ def _abs_deg_min(v: float) -> tuple[int, float]:
 
 def format_ddmmss(deg: float) -> str:
     d, m, s = _abs_deg_min_sec(abs(deg))
-    return f"{d:d}°{m:02d}'{s:04.1f}\""
+    return f"{d:d}°{m:02d}'{round(s):02d}\""
 
 
 def format_ddmmmm(deg: float) -> str:
