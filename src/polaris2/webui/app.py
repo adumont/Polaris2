@@ -30,7 +30,7 @@ def _controls() -> tuple[float, float, int | None, str, float]:
     with col4:
         fmt = st.radio("Angle Format", options=["dms", "dmm"], horizontal=True)
     with col5:
-        zoom = st.slider("Chart Zoom", min_value=1.0, max_value=3.0, value=1.5, step=0.1)
+        zoom = st.slider("Chart Zoom", min_value=0.1, max_value=3.0, value=1.5, step=0.1)
     return error, he, int(seed) if seed else None, fmt, zoom
 
 

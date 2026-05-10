@@ -46,14 +46,15 @@ def _plot_lop(ax, red, color, half: float):
         cy = -offset * math.cos(az_r)
     ax.plot([0, cx], [0, cy], color=color, linewidth=1, linestyle=":")
     ax.plot(cx, cy, marker="o", color=color, markersize=5)
-    hl = half * 0.95
+    hl = half * 2.5
     sx = cx + hl * math.cos(az_r)
     sy = cy - hl * math.sin(az_r)
     ex = cx - hl * math.cos(az_r)
     ey = cy + hl * math.sin(az_r)
     ax.plot([sx, ex], [sy, ey], color=color, linewidth=2, label=body_label(red.body_name))
     mx, my = (sx + ex) / 2, (sy + ey) / 2
-    ax.text(mx + 0.3, my + 0.3, body_label(red.body_name), color=color, fontweight="bold", fontsize=9)
+    lw = half * 0.06
+    ax.text(mx + lw, my + lw, body_label(red.body_name), color=color, fontweight="bold", fontsize=9)
 
 
 def _plot_compass(ax, scenario: Scenario, half: float, colors, cx_shift: float = 0, cy_shift: float = 0):
@@ -119,14 +120,15 @@ def plot_chart(scenario: Scenario, zoom: float = 1.5) -> plt.Figure:
     for i, red in enumerate(selected):
         _plot_lop(ax, red, colors[i % len(colors)], half)
 
+    off = half * 0.08
     ax.plot(0, 0, marker="s", color="blue", markersize=8, zorder=5)
-    ax.text(2, 2, "DR", color="blue", fontweight="bold", fontsize=10)
+    ax.text(off, off, "DR", color="blue", fontweight="bold", fontsize=10)
     ax.plot(rx, ry, marker="^", color="green", markersize=10, zorder=5)
-    ax.text(rx + 2, ry + 2, "Real", color="green", fontweight="bold", fontsize=10)
+    ax.text(rx + off, ry + off, "Real", color="green", fontweight="bold", fontsize=10)
     if scenario.fix:
         fy, fx = _nmi_offsets(scenario.fix.lat, scenario.fix.lon, dr)
         ax.plot(fx, fy, marker="D", color="red", markersize=10, zorder=5)
-        ax.text(fx + 2, fy + 2, "Fix", color="red", fontweight="bold", fontsize=10)
+        ax.text(fx + off, fy + off, "Fix", color="red", fontweight="bold", fontsize=10)
 
     _plot_compass(ax, scenario, half, colors, cx, cy)
     ax.legend(loc="lower right", fontsize=9)
