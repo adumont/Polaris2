@@ -140,7 +140,7 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
                 "Body": body_label(r.body_name),
                 "Hc": format_angle(r.hc, fmt),
                 "Ho": format_angle(r.ho, fmt),
-                "I (nmi)": f"{r.intercept_nmi:+.2f}",
+                "I (nmi)": f"{r.intercept_nmi:+.1f}",
                 "Zn": format_azimuth(r.azimut_zn),
             }
         )

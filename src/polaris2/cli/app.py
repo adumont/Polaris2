@@ -100,7 +100,7 @@ def _interactive_select(scenario: Scenario, fmt: str) -> None:
         for i, r in enumerate(scenario.sight_reductions):
             sel = "[x]" if r.selected else "[ ]"
             print(
-                f"  {i + 1}. {sel} {body_label(r.body_name):12s}  I={r.intercept_nmi:+.2f}  Zn={format_azimuth(r.azimut_zn)}"
+                f"  {i + 1}. {sel} {body_label(r.body_name):12s}  I={r.intercept_nmi:+.1f}  Zn={format_azimuth(r.azimut_zn)}"
             )
         inp = input("\nEnter body numbers to use (comma-separated, e.g. '1,3,4') or 'all': ").strip()
         if not inp:
@@ -149,7 +149,7 @@ def main():
     for r in scenario.sight_reductions:
         a = body_label(r.body_name)
         print(
-            f"  {a:12s}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  I = {r.intercept_nmi:+.2f} nmi  Zn = {format_azimuth(r.azimut_zn)}"
+            f"  {a:12s}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  I = {r.intercept_nmi:+.1f} nmi  Zn = {format_azimuth(r.azimut_zn)}"
         )
     print()
     if args.interactive:

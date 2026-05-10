@@ -127,7 +127,7 @@ class Polaris2TUI(App):
                 body_label(r.body_name),
                 format_angle(r.hc),
                 format_angle(r.ho),
-                f"{r.intercept_nmi:+.2f}",
+                f"{r.intercept_nmi:+.1f}",
                 format_azimuth(r.azimut_zn),
                 key=str(i),
             )
