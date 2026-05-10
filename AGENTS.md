@@ -10,6 +10,8 @@
 - Maintain the README.md (create if not there)
 - Maintain the AGENTS.md
 
+- Language: only english!
+
 ## Testing and Code Quality
 
 - pytest in tests/
