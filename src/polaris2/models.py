@@ -9,8 +9,11 @@ class Position(BaseModel):
     lat: float
     lon: float
 
+    def display(self, fmt: str = "dms") -> str:
+        return format_position(self.lat, self.lon, fmt)
+
     def __str__(self) -> str:
-        return format_position(self.lat, self.lon)
+        return self.display("dms")
 
 
 class SextantReading(BaseModel):

@@ -65,16 +65,15 @@ def format_ddmmmm(deg: float) -> str:
     return f"{d:d}°{m:05.2f}'"
 
 
-def format_angle(deg: float) -> str:
-    s = format_ddmmss(deg)
-    return f"{deg:.3f}° = {s}"
+def format_angle(deg: float, fmt: str = "dms") -> str:
+    if fmt == "dmm":
+        return format_ddmmmm(deg)
+    return format_ddmmss(deg)
 
 
-def format_position(lat: float, lon: float) -> str:
+def format_position(lat: float, lon: float, fmt: str = "dms") -> str:
     ns = "N" if lat >= 0 else "S"
     ew = "E" if lon >= 0 else "W"
-    lat_s = format_ddmmss(lat)
-    lat_m = format_ddmmmm(lat)
-    lon_s = format_ddmmss(lon)
-    lon_m = format_ddmmmm(lon)
-    return f"{lat_s} {ns}  {lon_s} {ew}  |  {lat_m} {ns}  {lon_m} {ew}"
+    lat_s = format_angle(lat, fmt)
+    lon_s = format_angle(lon, fmt)
+    return f"{lat_s} {ns}  {lon_s} {ew}"

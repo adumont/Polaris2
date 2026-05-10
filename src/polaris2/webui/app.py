@@ -17,15 +17,17 @@ def _setup_page():
     )
 
 
-def _controls() -> tuple[float, float, int | None]:
-    col1, col2, col3 = st.columns(3)
+def _controls() -> tuple[float, float, int | None, str]:
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         error = st.number_input("DR Error (nmi)", value=DEFAULT_ERROR_NMI, min_value=1.0, max_value=50.0, step=0.5)
     with col2:
         he = st.number_input("Height of Eye (ft)", value=DEFAULT_HE_FT, min_value=0.0, max_value=100.0, step=1.0)
     with col3:
         seed = st.number_input("Random Seed", value=42, min_value=0, step=1)
-    return error, he, int(seed) if seed else None
+    with col4:
+        fmt = st.radio("Angle Format", options=["dms", "dmm"], horizontal=True)
+    return error, he, int(seed) if seed else None, fmt
 
 
 def _draw_lop(sight, fix, dr, m):
@@ -57,24 +59,24 @@ def _draw_lop(sight, fix, dr, m):
     ).add_to(m)
 
 
-def _build_map(scenario: Scenario):
+def _build_map(scenario: Scenario, fmt: str = "dms"):
     center_lat = (scenario.real_position.lat + scenario.estimated_position.lat) / 2
     center_lon = (scenario.real_position.lon + scenario.estimated_position.lon) / 2
     m = folium.Map(location=[center_lat, center_lon], zoom_start=5)
     folium.Marker(
         [scenario.real_position.lat, scenario.real_position.lon],
-        popup=f"Real: {scenario.real_position}",
+        popup=f"Real: {scenario.real_position.display(fmt)}",
         icon=folium.Icon(color="green", icon="anchor", prefix="fa"),
     ).add_to(m)
     folium.Marker(
         [scenario.estimated_position.lat, scenario.estimated_position.lon],
-        popup=f"DR: {scenario.estimated_position}",
+        popup=f"DR: {scenario.estimated_position.display(fmt)}",
         icon=folium.Icon(color="blue", icon="ship", prefix="fa"),
     ).add_to(m)
     if scenario.fix:
         folium.Marker(
             [scenario.fix.lat, scenario.fix.lon],
-            popup=f"Fix: {Position(lat=scenario.fix.lat, lon=scenario.fix.lon)}<br>"
+            popup=f"Fix: {Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}<br>"
             f"Error: {scenario.fix.error_nmi:.2f} nmi",
             icon=folium.Icon(color="red", icon="crosshairs", prefix="fa"),
         ).add_to(m)
@@ -108,15 +110,15 @@ def _build_map(scenario: Scenario):
     return m
 
 
-def _display(scenario: Scenario):
+def _display(scenario: Scenario, fmt: str = "dms"):
     st.subheader("Scenario")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("UTC", scenario.utc.strftime("%Y-%m-%d %H:%M Z"))
-    c2.metric("Real Position", str(scenario.real_position))
-    c3.metric("DR Position", str(scenario.estimated_position))
+    c2.metric("Real Position", scenario.real_position.display(fmt))
+    c3.metric("DR Position", scenario.estimated_position.display(fmt))
     c4.metric("DR Error", f"{scenario.dr_error_nmi:.1f} nmi")
     if scenario.fix:
-        c1.metric("Fix Position", f"{Position(lat=scenario.fix.lat, lon=scenario.fix.lon)}")
+        c1.metric("Fix Position", f"{Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}")
         c2.metric("Fix Error", f"{scenario.fix.error_nmi:.2f} nmi")
     st.subheader("Sextant Readings")
     readings_data = []
@@ -124,8 +126,8 @@ def _display(scenario: Scenario):
         readings_data.append(
             {
                 "Body": r.body_name,
-                "Ho": format_angle(r.ho),
-                "Real Alt": format_angle(r.real_altitude),
+                "Ho": format_angle(r.ho, fmt),
+                "Real Alt": format_angle(r.real_altitude, fmt),
                 "Corr (deg)": f"{r.correction_total:+.4f}",
             }
         )
@@ -136,10 +138,10 @@ def _display(scenario: Scenario):
         red_data.append(
             {
                 "Body": r.body_name,
-                "Hc": format_angle(r.hc),
-                "Ho": format_angle(r.ho),
+                "Hc": format_angle(r.hc, fmt),
+                "Ho": format_angle(r.ho, fmt),
                 "a (nmi)": f"{r.alpha_nmi:+.2f}",
-                "Zn": format_angle(r.azimut_zn),
+                "Zn": format_angle(r.azimut_zn, fmt),
             }
         )
     st.dataframe(red_data, use_container_width=True)
@@ -148,7 +150,7 @@ def _display(scenario: Scenario):
         c1, c2 = st.columns(2)
         c1.metric("Fix Lat", f"{scenario.fix.lat:.4f} deg")
         c2.metric("Fix Lon", f"{scenario.fix.lon:.4f} deg")
-    m = _build_map(scenario)
+    m = _build_map(scenario, fmt)
     st_folium(m, width=None, height=600)
 
 
@@ -157,10 +159,10 @@ def main():
     st.title("Polaris2 - Celestial Navigation Simulator")
     st.markdown("Generate a realistic celestial navigation scenario with random real/DR positions and sight reduction.")
     with st.expander("Settings", expanded=True):
-        error, he, seed = _controls()
+        error, he, seed, fmt = _controls()
     if st.button("Generate Scenario", type="primary"):
         scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
-        _display(scenario)
+        _display(scenario, fmt)
     else:
         st.info("Click **Generate Scenario** to start.")
 

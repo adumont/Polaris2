@@ -8,7 +8,7 @@ from polaris2.core.reduction import compute_fix_error, compute_hc_zn, solve_fix_
 from polaris2.core.scenario import dr_position, random_daylight_datetime
 from polaris2.core.sight import compute_ho
 from polaris2.models import Position, Scenario
-from polaris2.utils.angles import format_angle, format_ddmmss
+from polaris2.utils.angles import format_angle
 from polaris2.utils.io import save_scenario
 
 _MIN_VISIBLE_ALT = 0.0
@@ -80,30 +80,34 @@ def main():
     parser.add_argument("--error", type=float, default=DEFAULT_ERROR_NMI, help="DR error in nmi")
     parser.add_argument("--he", type=float, default=DEFAULT_HE_FT, help="Height of eye in feet")
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
+    parser.add_argument(
+        "--format", type=str, choices=["dms", "dmm"], default="dms", help="Angle/position output format"
+    )
     parser.add_argument("--output", type=str, default=None, help="Save scenario to YAML file")
     args = parser.parse_args()
+    fmt = args.format
     scenario = run_scenario(error_nmi=args.error, he_ft=args.he, seed=args.seed)
     print(f"UTC: {scenario.utc.strftime('%Y-%m-%d %H:%M:%S')} Z")
-    print(f"Real Position:     {scenario.real_position}")
-    print(f"DR Position:       {scenario.estimated_position}")
+    print(f"Real Position:     {scenario.real_position.display(fmt)}")
+    print(f"DR Position:       {scenario.estimated_position.display(fmt)}")
     print(f"DR Error:          {scenario.dr_error_nmi:.1f} nmi")
     print()
     print("Sextant Readings (real):")
     for r in scenario.sextant_readings:
         a = r.body_name
         print(
-            f"  {a:12s}  Ho = {format_angle(r.ho)}  (alt = {format_angle(r.real_altitude)}, corr = {r.correction_total:+.4f} deg)"
+            f"  {a:12s}  Ho = {format_angle(r.ho, fmt)}  (alt = {format_angle(r.real_altitude, fmt)}, corr = {r.correction_total:+.4f} deg)"
         )
     print()
     print("Sight Reductions (from DR):")
     for r in scenario.sight_reductions:
         a = r.body_name
         print(
-            f"  {a:12s}  Hc = {format_angle(r.hc)}  Ho = {format_angle(r.ho)}  alpha = {r.alpha_nmi:+.2f} nmi  Zn = {r.azimut_zn:.1f}° = {format_ddmmss(r.azimut_zn)}"
+            f"  {a:12s}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  alpha = {r.alpha_nmi:+.2f} nmi  Zn = {format_angle(r.azimut_zn, fmt)}"
         )
     print()
     if scenario.fix:
-        print(f"Fix Position:      {Position(lat=scenario.fix.lat, lon=scenario.fix.lon)}")
+        print(f"Fix Position:      {Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}")
         print(f"Fix Error:         {scenario.fix.error_nmi:.2f} nmi  (iterations: {scenario.fix.iterations})")
     else:
         print("Not enough bodies for a fix (<2)")
