@@ -4,6 +4,7 @@ import folium
 import streamlit as st
 from streamlit_folium import st_folium
 
+from polaris2.cartography import plot_chart
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
 from polaris2.models import Position, Scenario
@@ -145,13 +146,18 @@ def _display(scenario: Scenario, fmt: str = "dms"):
             }
         )
     st.dataframe(red_data, use_container_width=True)
-    st.subheader("Map")
+    st.subheader("Charts")
     if scenario.fix:
         c1, c2 = st.columns(2)
         c1.metric("Fix Lat", f"{scenario.fix.lat:.4f} deg")
         c2.metric("Fix Lon", f"{scenario.fix.lon:.4f} deg")
-    m = _build_map(scenario, fmt)
-    st_folium(m, width=None, height=600)
+    col_map, col_chart = st.columns(2)
+    with col_map:
+        m = _build_map(scenario, fmt)
+        st_folium(m, width=None, height=600)
+    with col_chart:
+        fig = plot_chart(scenario)
+        st.pyplot(fig)
 
 
 def main():

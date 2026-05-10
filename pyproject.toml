@@ -13,6 +13,7 @@ dependencies = [
     "streamlit",
     "folium",
     "streamlit-folium",
+    "matplotlib",
     "pytz",
     "sgp4",
     "ruff>=0.15.12",
