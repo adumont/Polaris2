@@ -110,6 +110,8 @@ def _interactive_select(scenario: Scenario, fmt: str) -> None:
         print()
         if scenario.fix:
             print(f"Fix Position:      {Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}")
+            print(f"Fix Lat:           {scenario.fix.lat:.4f}°")
+            print(f"Fix Lon:           {scenario.fix.lon:.4f}°")
             print(f"Fix Error:         {scenario.fix.error_nmi:.2f} nmi  (iterations: {scenario.fix.iterations})")
         else:
             print("Not enough selected bodies for a fix (<2)")
@@ -156,6 +158,8 @@ def main():
         recompute_fix(scenario)
         if scenario.fix:
             print(f"Fix Position:      {Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}")
+            print(f"Fix Lat:           {scenario.fix.lat:.4f}°")
+            print(f"Fix Lon:           {scenario.fix.lon:.4f}°")
             print(f"Fix Error:         {scenario.fix.error_nmi:.2f} nmi  (iterations: {scenario.fix.iterations})")
         else:
             print("Not enough bodies for a fix (<2)")

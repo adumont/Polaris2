@@ -135,7 +135,9 @@ class Polaris2TUI(App):
     def _update_fix(self, s: Scenario) -> None:
         if s.fix:
             self.query_one("#fix-info", Static).update(
-                f"Fix Error: {s.fix.error_nmi:.2f} nmi  (iterations: {s.fix.iterations})"
+                f"Fix: {Position(lat=s.fix.lat, lon=s.fix.lon)}  "
+                f"Lat: {s.fix.lat:.4f}°  Lon: {s.fix.lon:.4f}°  "
+                f"Error: {s.fix.error_nmi:.2f} nmi  (iterations: {s.fix.iterations})"
             )
         else:
             self.query_one("#fix-info", Static).update("Not enough bodies for a fix (<2)")
