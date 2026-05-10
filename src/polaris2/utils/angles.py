@@ -93,6 +93,10 @@ def body_label(name: str) -> str:
     return name
 
 
+def format_azimuth(deg: float) -> str:
+    return f"{deg:.1f}°"
+
+
 def format_position(lat: float, lon: float, fmt: str = "dms") -> str:
     ns = "N" if lat >= 0 else "S"
     ew = "E" if lon >= 0 else "W"

@@ -9,7 +9,7 @@ from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
 from polaris2.core.reduction import recompute_fix
 from polaris2.models import Position, Scenario
-from polaris2.utils.angles import body_label, format_angle
+from polaris2.utils.angles import body_label, format_angle, format_azimuth
 
 
 def _setup_page():
@@ -55,7 +55,7 @@ def _draw_lop(sight, fix, dr, m):
         color=color,
         weight=2,
         opacity=0.8,
-        popup=f"{body_label(sight.body_name)}: I={sight.intercept_nmi:+.1f} nmi, Zn={sight.azimut_zn:.0f} deg",
+        popup=f"{body_label(sight.body_name)}: I={sight.intercept_nmi:+.1f} nmi, Zn={format_azimuth(sight.azimut_zn)}",
     ).add_to(m)
 
 
@@ -141,7 +141,7 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
                 "Hc": format_angle(r.hc, fmt),
                 "Ho": format_angle(r.ho, fmt),
                 "I (nmi)": f"{r.intercept_nmi:+.2f}",
-                "Zn": format_angle(r.azimut_zn, fmt),
+                "Zn": format_azimuth(r.azimut_zn),
             }
         )
     edited = st.data_editor(

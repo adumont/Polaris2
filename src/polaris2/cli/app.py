@@ -15,7 +15,7 @@ from polaris2.core.reduction import compute_hc_zn, recompute_fix
 from polaris2.core.scenario import dr_position, random_daylight_datetime
 from polaris2.core.sight import compute_ho
 from polaris2.models import Position, Scenario
-from polaris2.utils.angles import body_label, format_angle
+from polaris2.utils.angles import body_label, format_angle, format_azimuth
 from polaris2.utils.io import save_scenario
 
 _MIN_VISIBLE_ALT = 0.0
@@ -100,7 +100,7 @@ def _interactive_select(scenario: Scenario, fmt: str) -> None:
         for i, r in enumerate(scenario.sight_reductions):
             sel = "[x]" if r.selected else "[ ]"
             print(
-                f"  {i + 1}. {sel} {body_label(r.body_name):12s}  I={r.intercept_nmi:+.2f}  Zn={format_angle(r.azimut_zn, fmt)}"
+                f"  {i + 1}. {sel} {body_label(r.body_name):12s}  I={r.intercept_nmi:+.2f}  Zn={format_azimuth(r.azimut_zn)}"
             )
         inp = input("\nEnter body numbers to use (comma-separated, e.g. '1,3,4') or 'all': ").strip()
         if not inp:
@@ -149,7 +149,7 @@ def main():
     for r in scenario.sight_reductions:
         a = body_label(r.body_name)
         print(
-            f"  {a:12s}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  I = {r.intercept_nmi:+.2f} nmi  Zn = {format_angle(r.azimut_zn, fmt)}"
+            f"  {a:12s}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  I = {r.intercept_nmi:+.2f} nmi  Zn = {format_azimuth(r.azimut_zn)}"
         )
     print()
     if args.interactive:

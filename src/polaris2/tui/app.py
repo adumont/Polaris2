@@ -9,7 +9,7 @@ from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
 from polaris2.core.reduction import recompute_fix
 from polaris2.models import Position, Scenario
-from polaris2.utils.angles import body_label, format_angle
+from polaris2.utils.angles import body_label, format_angle, format_azimuth
 
 
 class Polaris2TUI(App):
@@ -128,7 +128,7 @@ class Polaris2TUI(App):
                 format_angle(r.hc),
                 format_angle(r.ho),
                 f"{r.intercept_nmi:+.2f}",
-                format_angle(r.azimut_zn),
+                format_azimuth(r.azimut_zn),
                 key=str(i),
             )
 
