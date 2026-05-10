@@ -104,7 +104,7 @@ class TestRecomputeFix:
         assert scenario.fix is not None
         assert isinstance(scenario.fix.error_nmi, float)
 
-    def test_none_when_fewer_than_two_selected(self):
+    def test_single_selected_returns_fix(self):
         dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
         reductions = [
             SightReduction(
@@ -130,9 +130,10 @@ class TestRecomputeFix:
             sight_reductions=reductions,
         )
         recompute_fix(scenario)
-        assert scenario.fix is None
+        assert scenario.fix is not None
+        assert scenario.fix.iterations == 1
 
-    def test_all_deselected_returns_none(self):
+    def test_none_when_zero_selected(self):
         dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
         reductions = [
             SightReduction(

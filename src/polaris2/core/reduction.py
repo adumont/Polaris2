@@ -66,12 +66,23 @@ def solve_fix_least_squares(
     return Fix(lat=lat, lon=lon, iterations=_iteration + 1)
 
 
+def solve_fix_single(reduction: SightReduction, dr_pos: Position) -> Fix:
+    az_r = math.radians(reduction.azimut_zn)
+    offset_deg = reduction.intercept_nmi / 60.0
+    lat = dr_pos.lat + offset_deg * math.cos(az_r)
+    lon = dr_pos.lon + offset_deg * math.sin(az_r) / math.cos(math.radians(dr_pos.lat))
+    return Fix(lat=lat, lon=lon, iterations=1)
+
+
 def recompute_fix(scenario: Scenario) -> None:
     selected = [r for r in scenario.sight_reductions if r.selected]
-    if len(selected) < _MIN_BODIES:
+    if len(selected) == 0:
         scenario.fix = None
         return
-    fix = solve_fix_least_squares(selected, scenario.estimated_position)
+    if len(selected) == 1:
+        fix = solve_fix_single(selected[0], scenario.estimated_position)
+    else:
+        fix = solve_fix_least_squares(selected, scenario.estimated_position)
     fix = compute_fix_error(fix, scenario.real_position)
     scenario.fix = fix
 
