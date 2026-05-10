@@ -6,6 +6,7 @@ from skyfield.data import stellarium
 
 from polaris2.config import NAVPAC_STAR_INDEX
 from polaris2.models import Position
+from polaris2.utils.angles import round_to_arcsec
 
 _CACHE_DIR = Path.home() / ".polaris2" / "skyfield"
 _CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -45,7 +46,7 @@ def body_alt_az(name: str, dt: datetime, pos: Position) -> tuple[float, float]:
         raise ValueError(msg)
     astrometric = observer.at(t).observe(body).apparent()
     alt, az, _ = astrometric.altaz()
-    return float(alt.degrees), float(az.degrees)
+    return round_to_arcsec(float(alt.degrees)), round_to_arcsec(float(az.degrees))
 
 
 def body_alt_az_multiple(names: list[str], dt: datetime, pos: Position) -> dict[str, tuple[float, float]]:

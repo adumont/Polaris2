@@ -32,6 +32,14 @@ def ddmmmm_to_deg(value: float) -> float:
     return sign * (d + mm / 60)
 
 
+def round_to_arcsec(deg: float) -> float:
+    v = abs(deg)
+    d = int(v)
+    m = int((v - d) * 60)
+    s = round((v - d - m / 60) * 3600)
+    return (1 if deg >= 0 else -1) * (d + m / 60 + s / 3600)
+
+
 def parse_angle(value: float) -> float:
     v = abs(value)
     d = int(v // 10000)
