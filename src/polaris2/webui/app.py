@@ -161,8 +161,10 @@ def main():
     with st.expander("Settings", expanded=True):
         error, he, seed, fmt = _controls()
     if st.button("Generate Scenario", type="primary"):
-        scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
-        _display(scenario, fmt)
+        st.session_state.scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
+        st.session_state.fmt = fmt
+    if "scenario" in st.session_state:
+        _display(st.session_state.scenario, st.session_state.fmt)
     else:
         st.info("Click **Generate Scenario** to start.")
 
