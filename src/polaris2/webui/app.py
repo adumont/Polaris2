@@ -7,6 +7,7 @@ from streamlit_folium import st_folium
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
 from polaris2.models import Position, Scenario
+from polaris2.utils.angles import format_angle
 
 
 def _setup_page():
@@ -123,9 +124,9 @@ def _display(scenario: Scenario):
         readings_data.append(
             {
                 "Body": r.body_name,
-                "Ho (deg)": f"{r.ho:.4f}",
-                "Real Alt (deg)": f"{r.real_altitude:.4f}",
-                "Correction (deg)": f"{r.correction_total:+.4f}",
+                "Ho": format_angle(r.ho),
+                "Real Alt": format_angle(r.real_altitude),
+                "Corr (deg)": f"{r.correction_total:+.4f}",
             }
         )
     st.dataframe(readings_data, use_container_width=True)
@@ -135,10 +136,10 @@ def _display(scenario: Scenario):
         red_data.append(
             {
                 "Body": r.body_name,
-                "Hc (deg)": f"{r.hc:.4f}",
-                "Ho (deg)": f"{r.ho:.4f}",
+                "Hc": format_angle(r.hc),
+                "Ho": format_angle(r.ho),
                 "a (nmi)": f"{r.alpha_nmi:+.2f}",
-                "Zn (deg)": f"{r.azimut_zn:.1f}",
+                "Zn": format_angle(r.azimut_zn),
             }
         )
     st.dataframe(red_data, use_container_width=True)

@@ -65,6 +65,11 @@ def format_ddmmmm(deg: float) -> str:
     return f"{d:d}°{m:05.2f}'"
 
 
+def format_angle(deg: float) -> str:
+    s = format_ddmmss(deg)
+    return f"{deg:.3f}° = {s}"
+
+
 def format_position(lat: float, lon: float) -> str:
     ns = "N" if lat >= 0 else "S"
     ew = "E" if lon >= 0 else "W"
