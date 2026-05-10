@@ -28,7 +28,7 @@ class SightReduction(BaseModel):
     body_name: str
     ho: float
     hc: float
-    alpha_nmi: float
+    intercept_nmi: float
     azimut_zn: float
     lat_dr: float
     lon_dr: float

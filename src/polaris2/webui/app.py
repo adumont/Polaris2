@@ -36,15 +36,11 @@ def _controls() -> tuple[float, float, int | None, str, float]:
 
 def _draw_lop(sight, fix, dr, m):
     az_r = math.radians(sight.azimut_zn)
-    alpha = sight.alpha_nmi
+    intercept = sight.intercept_nmi
     nmi_per_deg = 60.0
-    offset_deg = abs(alpha) / nmi_per_deg
-    if alpha < 0:
-        shift_lat = offset_deg * math.cos(az_r)
-        shift_lon = offset_deg * math.sin(az_r) / math.cos(math.radians(dr.lat))
-    else:
-        shift_lat = -offset_deg * math.cos(az_r)
-        shift_lon = -offset_deg * math.sin(az_r) / math.cos(math.radians(dr.lat))
+    offset_deg = intercept / nmi_per_deg
+    shift_lat = offset_deg * math.cos(az_r)
+    shift_lon = offset_deg * math.sin(az_r) / math.cos(math.radians(dr.lat))
     lop_lat = dr.lat + shift_lat
     lop_lon = dr.lon + shift_lon
     perp_az = az_r + math.pi / 2
@@ -59,7 +55,7 @@ def _draw_lop(sight, fix, dr, m):
         color=color,
         weight=2,
         opacity=0.8,
-        popup=f"{body_label(sight.body_name)}: a={sight.alpha_nmi:+.1f} nmi, Zn={sight.azimut_zn:.0f} deg",
+        popup=f"{body_label(sight.body_name)}: I={sight.intercept_nmi:+.1f} nmi, Zn={sight.azimut_zn:.0f} deg",
     ).add_to(m)
 
 
@@ -150,7 +146,7 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
                 "Body": body_label(r.body_name),
                 "Hc": format_angle(r.hc, fmt),
                 "Ho": format_angle(r.ho, fmt),
-                "a (nmi)": f"{r.alpha_nmi:+.2f}",
+                "I (nmi)": f"{r.intercept_nmi:+.2f}",
                 "Zn": format_angle(r.azimut_zn, fmt),
             }
         )
@@ -162,7 +158,7 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
             "Body": "Body",
             "Hc": "Hc",
             "Ho": "Ho",
-            "a (nmi)": "a (nmi)",
+            "I (nmi)": "I (nmi)",
             "Zn": "Zn",
         },
         disabled=["idx", "Body", "Hc", "Ho", "a (nmi)", "Zn"],

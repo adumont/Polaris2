@@ -18,12 +18,12 @@ def compute_hc_zn(
     alt, az = body_alt_az(body_name, dt, dr_pos)
     hc = alt
     zn = az
-    alpha_nmi = (hc - ho) * 60.0
+    intercept_nmi = (ho - hc) * 60.0
     return SightReduction(
         body_name=body_name,
         ho=ho,
         hc=hc,
-        alpha_nmi=alpha_nmi,
+        intercept_nmi=intercept_nmi,
         azimut_zn=zn,
         lat_dr=dr_pos.lat,
         lon_dr=dr_pos.lon,
@@ -48,10 +48,10 @@ def solve_fix_least_squares(
             cur_pos = Position(lat=lat, lon=lon)
             alt, az = body_alt_az(body_name, utc_dt, cur_pos)
             hc = alt
-            alpha_nmi = (hc - ho) * 60.0
+            intercept_nmi = (ho - hc) * 60.0
             az_r = math.radians(az)
             mat.append([math.cos(az_r), math.sin(az_r)])
-            vec.append(-alpha_nmi)
+            vec.append(intercept_nmi)
         mat = np.array(mat, dtype=float)
         vec = np.array(vec, dtype=float)
         if mat.shape[0] < _MIN_BODIES:

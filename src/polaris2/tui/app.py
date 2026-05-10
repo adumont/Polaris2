@@ -48,7 +48,7 @@ class Polaris2TUI(App):
         tbl = self.query_one("#readings-table", DataTable)
         tbl.add_columns("Body", "Ho", "Real Alt", "Corr (deg)")
         tbl = self.query_one("#reductions-table", DataTable)
-        tbl.add_columns("Use", "Body", "Hc", "Ho", "a (nmi)", "Zn")
+        tbl.add_columns("Use", "Body", "Hc", "Ho", "I (nmi)", "Zn")
 
     @on(Button.Pressed, "#gen-btn")
     def generate(self) -> None:
@@ -127,7 +127,7 @@ class Polaris2TUI(App):
                 body_label(r.body_name),
                 format_angle(r.hc),
                 format_angle(r.ho),
-                f"{r.alpha_nmi:+.2f}",
+                f"{r.intercept_nmi:+.2f}",
                 format_angle(r.azimut_zn),
                 key=str(i),
             )

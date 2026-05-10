@@ -38,7 +38,7 @@ src/polaris2/
 │   ├── scenario.py  # Random Atlantic pos, daylight datetime, DR at error
 │   ├── almanac.py   # Skyfield: body alt/az via observer=earth+latlon
 │   ├── sight.py     # Ho = apparent_alt + dip + SD (no double refraction)
-│   └── reduction.py # Hc, Zn, alpha=Hc-Ho, iterative LSQ fix
+│   └── reduction.py # Hc, Zn, intercept=Ho-Hc, iterative LSQ fix
 ├── cli/
 │   └── app.py       # argparse entry point
 ├── tui/             # placeholder
@@ -50,8 +50,8 @@ src/polaris2/
 - Skyfield 1.54 API: body.observe() requires observer = EARTH + wgs84.latlon()
 - Ho: uses Skyfield's apparent alt (includes refraction) + dip + SD for Sun/Moon
 - Hc: Skyfield apparent alt at DR position (no additional corrections)
-- alpha = Hc - Ho (nmi). Positive = DR closer to body than real position
-- LSQ solver: A = [cos(Zn), sin(Zn)], b = -alpha. Iterative with recomputed Hc
+- intercept = Ho - Hc (nmi). Positive = Toward body (in Zn direction)
+- LSQ solver: A = [cos(Zn), sin(Zn)], b = intercept. Iterative with recomputed Hc
 - Best bodies: 30-60 deg altitude range, fall back to lower/upper, min 2 bodies
 - Sun + Moon are primary daytime bodies; stars rarely visible in daylight
 - Fix error via haversine formula, in nautical miles

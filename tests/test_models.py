@@ -39,14 +39,14 @@ class TestSightReduction:
             body_name="Sun",
             ho=45.0,
             hc=45.1,
-            alpha_nmi=6.0,
+            intercept_nmi=-6.0,
             azimut_zn=180.0,
             lat_dr=30.0,
             lon_dr=-60.0,
             utc=dt,
         )
         assert r.body_name == "Sun"
-        assert r.alpha_nmi == 6.0
+        assert r.intercept_nmi == -6.0
         assert r.selected is True
 
     def test_selected_default_true(self):
@@ -55,7 +55,7 @@ class TestSightReduction:
             body_name="Moon",
             ho=30.0,
             hc=30.1,
-            alpha_nmi=6.0,
+            intercept_nmi=-6.0,
             azimut_zn=90.0,
             lat_dr=30.0,
             lon_dr=-60.0,
@@ -69,7 +69,7 @@ class TestSightReduction:
             body_name="Venus",
             ho=20.0,
             hc=20.1,
-            alpha_nmi=6.0,
+            intercept_nmi=-6.0,
             azimut_zn=45.0,
             lat_dr=30.0,
             lon_dr=-60.0,
@@ -97,7 +97,7 @@ class TestScenario:
             body_name="Sun",
             ho=45.0,
             hc=45.1,
-            alpha_nmi=6.0,
+            intercept_nmi=-6.0,
             azimut_zn=180.0,
             lat_dr=35.1,
             lon_dr=-39.9,

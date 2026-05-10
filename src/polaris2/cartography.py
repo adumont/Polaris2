@@ -37,13 +37,8 @@ def _plot_latlon_grid(ax, dr: Position, half: float, cx: float = 0, cy: float = 
 
 def _plot_lop(ax, red, color, half: float):
     az_r = math.radians(red.azimut_zn)
-    offset = abs(red.alpha_nmi)
-    if red.alpha_nmi < 0:
-        cx = offset * math.sin(az_r)
-        cy = offset * math.cos(az_r)
-    else:
-        cx = -offset * math.sin(az_r)
-        cy = -offset * math.cos(az_r)
+    cx = red.intercept_nmi * math.sin(az_r)
+    cy = red.intercept_nmi * math.cos(az_r)
     ax.plot([0, cx], [0, cy], color=color, linewidth=1, linestyle=":")
     ax.plot(cx, cy, marker="o", color=color, markersize=5)
     hl = half * 2.5

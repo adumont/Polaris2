@@ -57,8 +57,8 @@ src/polaris2/
 4. Selects best bodies (30-60° altitude range preferred)
 5. Computes apparent altitude at real position → Ho
 6. Computes apparent altitude at DR position → Hc, Zn
-7. Intercept α = (Hc − Ho) × 60 (nmi)
-8. Iterative least-squares fix: A·x = −α, where A = [cos Zn, sin Zn]
+7. Intercept I = (Ho − Hc) × 60 (nmi). Positive I = toward the body (in Zn direction)
+8. Iterative least-squares fix: A·x = I, where A = [cos Zn, sin Zn]
 9. Fix error computed via haversine formula
 
 ## Testing
