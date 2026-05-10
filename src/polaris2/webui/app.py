@@ -35,7 +35,7 @@ def _draw_lop(sight, fix, dr, m):
     alpha = sight.alpha_nmi
     nmi_per_deg = 60.0
     offset_deg = abs(alpha) / nmi_per_deg
-    if alpha > 0:
+    if alpha < 0:
         shift_lat = offset_deg * math.cos(az_r)
         shift_lon = offset_deg * math.sin(az_r) / math.cos(math.radians(dr.lat))
     else:
