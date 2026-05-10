@@ -7,6 +7,7 @@ from streamlit_folium import st_folium
 from polaris2.cartography import plot_chart
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
+from polaris2.core.reduction import recompute_fix
 from polaris2.models import Position, Scenario
 from polaris2.utils.angles import body_label, format_angle
 
@@ -84,7 +85,8 @@ def _build_map(scenario: Scenario, fmt: str = "dms"):
     if scenario.sight_reductions and scenario.fix:
         dr = scenario.estimated_position
         for red in scenario.sight_reductions:
-            _draw_lop(red, scenario.fix, dr, m)
+            if red.selected:
+                _draw_lop(red, scenario.fix, dr, m)
     error_line = [
         (scenario.real_position.lat, scenario.real_position.lon),
         (scenario.estimated_position.lat, scenario.estimated_position.lon),
@@ -132,12 +134,14 @@ def _display(scenario: Scenario, fmt: str = "dms"):
                 "Corr (deg)": f"{r.correction_total:+.4f}",
             }
         )
-    st.dataframe(readings_data, width='stretch')
+    st.dataframe(readings_data, width="stretch")
     st.subheader("Sight Reductions")
     red_data = []
-    for r in scenario.sight_reductions:
+    for i, r in enumerate(scenario.sight_reductions):
         red_data.append(
             {
+                "idx": i,
+                "selected": r.selected,
                 "Body": body_label(r.body_name),
                 "Hc": format_angle(r.hc, fmt),
                 "Ho": format_angle(r.ho, fmt),
@@ -145,7 +149,25 @@ def _display(scenario: Scenario, fmt: str = "dms"):
                 "Zn": format_angle(r.azimut_zn, fmt),
             }
         )
-    st.dataframe(red_data, width='stretch')
+    edited = st.data_editor(
+        red_data,
+        column_config={
+            "idx": None,
+            "selected": st.column_config.CheckboxColumn("Use"),
+            "Body": "Body",
+            "Hc": "Hc",
+            "Ho": "Ho",
+            "a (nmi)": "a (nmi)",
+            "Zn": "Zn",
+        },
+        disabled=["idx", "Body", "Hc", "Ho", "a (nmi)", "Zn"],
+        hide_index=True,
+    )
+    if st.button("Recalculate Fix"):
+        for row in edited:
+            scenario.sight_reductions[row["idx"]].selected = row["selected"]
+        recompute_fix(scenario)
+        st.rerun()
     st.subheader("Charts")
     if scenario.fix:
         c1, c2 = st.columns(2)

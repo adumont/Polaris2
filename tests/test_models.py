@@ -47,6 +47,36 @@ class TestSightReduction:
         )
         assert r.body_name == "Sun"
         assert r.alpha_nmi == 6.0
+        assert r.selected is True
+
+    def test_selected_default_true(self):
+        dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
+        r = SightReduction(
+            body_name="Moon",
+            ho=30.0,
+            hc=30.1,
+            alpha_nmi=6.0,
+            azimut_zn=90.0,
+            lat_dr=30.0,
+            lon_dr=-60.0,
+            utc=dt,
+        )
+        assert r.selected is True
+
+    def test_selected_can_be_false(self):
+        dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
+        r = SightReduction(
+            body_name="Venus",
+            ho=20.0,
+            hc=20.1,
+            alpha_nmi=6.0,
+            azimut_zn=45.0,
+            lat_dr=30.0,
+            lon_dr=-60.0,
+            utc=dt,
+            selected=False,
+        )
+        assert r.selected is False
 
 
 class TestFix:

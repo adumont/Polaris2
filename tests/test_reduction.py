@@ -1,7 +1,7 @@
 import math
 import pytest
-from polaris2.models import Position, SightReduction, Fix
-from polaris2.core.reduction import compute_fix_error, solve_fix_least_squares
+from polaris2.models import Position, Scenario, SightReduction, Fix
+from polaris2.core.reduction import compute_fix_error, recompute_fix, solve_fix_least_squares
 from datetime import datetime, timezone, UTC
 
 
@@ -49,3 +49,124 @@ class TestSolveFixLeastSquares:
         assert isinstance(fix.lat, float)
         assert isinstance(fix.lon, float)
         assert fix.iterations >= 1
+
+
+class TestRecomputeFix:
+    def test_uses_only_selected(self):
+        dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
+        reductions = [
+            SightReduction(
+                body_name="Sun",
+                ho=45.0,
+                hc=45.1,
+                alpha_nmi=6.0,
+                azimut_zn=90.0,
+                lat_dr=30.0,
+                lon_dr=-40.0,
+                utc=dt,
+                selected=True,
+            ),
+            SightReduction(
+                body_name="Moon",
+                ho=30.0,
+                hc=30.05,
+                alpha_nmi=3.0,
+                azimut_zn=180.0,
+                lat_dr=30.0,
+                lon_dr=-40.0,
+                utc=dt,
+                selected=True,
+            ),
+            SightReduction(
+                body_name="Venus",
+                ho=20.0,
+                hc=20.05,
+                alpha_nmi=3.0,
+                azimut_zn=45.0,
+                lat_dr=30.0,
+                lon_dr=-40.0,
+                utc=dt,
+                selected=False,
+            ),
+        ]
+        real = Position(lat=30.0, lon=-40.0)
+        est = Position(lat=30.1, lon=-39.9)
+        scenario = Scenario(
+            real_position=real,
+            estimated_position=est,
+            dr_error_nmi=5.0,
+            utc=dt,
+            he_ft=10.0,
+            sight_reductions=reductions,
+            fix=None,
+        )
+        recompute_fix(scenario)
+        assert scenario.fix is not None
+        assert isinstance(scenario.fix.error_nmi, float)
+
+    def test_none_when_fewer_than_two_selected(self):
+        dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
+        reductions = [
+            SightReduction(
+                body_name="Sun",
+                ho=45.0,
+                hc=45.1,
+                alpha_nmi=6.0,
+                azimut_zn=90.0,
+                lat_dr=30.0,
+                lon_dr=-40.0,
+                utc=dt,
+                selected=True,
+            ),
+        ]
+        real = Position(lat=30.0, lon=-40.0)
+        est = Position(lat=30.1, lon=-39.9)
+        scenario = Scenario(
+            real_position=real,
+            estimated_position=est,
+            dr_error_nmi=5.0,
+            utc=dt,
+            he_ft=10.0,
+            sight_reductions=reductions,
+        )
+        recompute_fix(scenario)
+        assert scenario.fix is None
+
+    def test_all_deselected_returns_none(self):
+        dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
+        reductions = [
+            SightReduction(
+                body_name="Sun",
+                ho=45.0,
+                hc=45.1,
+                alpha_nmi=6.0,
+                azimut_zn=90.0,
+                lat_dr=30.0,
+                lon_dr=-40.0,
+                utc=dt,
+                selected=False,
+            ),
+            SightReduction(
+                body_name="Moon",
+                ho=30.0,
+                hc=30.05,
+                alpha_nmi=3.0,
+                azimut_zn=180.0,
+                lat_dr=30.0,
+                lon_dr=-40.0,
+                utc=dt,
+                selected=False,
+            ),
+        ]
+        real = Position(lat=30.0, lon=-40.0)
+        est = Position(lat=30.1, lon=-39.9)
+        scenario = Scenario(
+            real_position=real,
+            estimated_position=est,
+            dr_error_nmi=5.0,
+            utc=dt,
+            he_ft=10.0,
+            sight_reductions=reductions,
+        )
+        recompute_fix(scenario)
+        assert scenario.fix is None

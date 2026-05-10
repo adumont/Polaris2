@@ -72,7 +72,8 @@ def _plot_compass(ax, scenario: Scenario, half: float, colors):
             ha="center",
             va="center",
         )
-    for i, red in enumerate(scenario.sight_reductions):
+    selected = [r for r in scenario.sight_reductions if r.selected]
+    for i, red in enumerate(selected):
         color = colors[i % len(colors)]
         a = math.radians(red.azimut_zn)
         tx = cx + cr * 0.85 * math.sin(a)
@@ -108,7 +109,8 @@ def plot_chart(scenario: Scenario) -> plt.Figure:
     ax.axvline(0, color="gray", linewidth=0.5)
 
     _plot_latlon_grid(ax, dr, half)
-    for i, red in enumerate(scenario.sight_reductions):
+    selected = [r for r in scenario.sight_reductions if r.selected]
+    for i, red in enumerate(selected):
         _plot_lop(ax, red, colors[i % len(colors)], half)
 
     ax.plot(0, 0, marker="s", color="blue", markersize=8, zorder=5)

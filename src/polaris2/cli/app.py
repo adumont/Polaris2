@@ -11,7 +11,7 @@ from polaris2.config import (
     PLANET_BODIES,
 )
 from polaris2.core.almanac import body_alt_az
-from polaris2.core.reduction import compute_fix_error, compute_hc_zn, solve_fix_least_squares
+from polaris2.core.reduction import compute_hc_zn, recompute_fix
 from polaris2.core.scenario import dr_position, random_daylight_datetime
 from polaris2.core.sight import compute_ho
 from polaris2.models import Position, Scenario
@@ -76,11 +76,46 @@ def run_scenario(
         scenario.sextant_readings.append(reading)
         reduction = compute_hc_zn(name, dt, dr, reading.ho)
         scenario.sight_reductions.append(reduction)
-    if len(scenario.sight_reductions) >= _MIN_BODIES_FOR_FIX:
-        fix = solve_fix_least_squares(scenario.sight_reductions, dr)
-        fix = compute_fix_error(fix, real_pos)
-        scenario.fix = fix
     return scenario
+
+
+def _apply_selection(scenario: Scenario, choice: str) -> None:
+    for r in scenario.sight_reductions:
+        r.selected = False
+    if choice.lower() == "all":
+        for r in scenario.sight_reductions:
+            r.selected = True
+    else:
+        parts = [p.strip() for p in choice.split(",")]
+        for p in parts:
+            if p.isdigit():
+                idx = int(p) - 1
+                if 0 <= idx < len(scenario.sight_reductions):
+                    scenario.sight_reductions[idx].selected = True
+
+
+def _interactive_select(scenario: Scenario, fmt: str) -> None:
+    while True:
+        print("\nSight Reductions:")
+        for i, r in enumerate(scenario.sight_reductions):
+            sel = "[x]" if r.selected else "[ ]"
+            print(
+                f"  {i + 1}. {sel} {body_label(r.body_name):12s}  a={r.alpha_nmi:+.2f}  Zn={format_angle(r.azimut_zn, fmt)}"
+            )
+        inp = input("\nEnter body numbers to use (comma-separated, e.g. '1,3,4') or 'all': ").strip()
+        if not inp:
+            break
+        _apply_selection(scenario, inp)
+        recompute_fix(scenario)
+        print()
+        if scenario.fix:
+            print(f"Fix Position:      {Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}")
+            print(f"Fix Error:         {scenario.fix.error_nmi:.2f} nmi  (iterations: {scenario.fix.iterations})")
+        else:
+            print("Not enough selected bodies for a fix (<2)")
+        again = input("\nAdjust selection? (y/n): ").strip().lower()
+        if again != "y":
+            break
 
 
 def main():
@@ -92,6 +127,7 @@ def main():
         "--format", type=str, choices=["dms", "dmm"], default="dms", help="Angle/position output format"
     )
     parser.add_argument("--output", type=str, default=None, help="Save scenario to YAML file")
+    parser.add_argument("--interactive", action="store_true", help="Prompt to select which bodies to use for the fix")
     args = parser.parse_args()
     fmt = args.format
     scenario = run_scenario(error_nmi=args.error, he_ft=args.he, seed=args.seed)
@@ -114,11 +150,15 @@ def main():
             f"  {a:12s}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  alpha = {r.alpha_nmi:+.2f} nmi  Zn = {format_angle(r.azimut_zn, fmt)}"
         )
     print()
-    if scenario.fix:
-        print(f"Fix Position:      {Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}")
-        print(f"Fix Error:         {scenario.fix.error_nmi:.2f} nmi  (iterations: {scenario.fix.iterations})")
+    if args.interactive:
+        _interactive_select(scenario, fmt)
     else:
-        print("Not enough bodies for a fix (<2)")
+        recompute_fix(scenario)
+        if scenario.fix:
+            print(f"Fix Position:      {Position(lat=scenario.fix.lat, lon=scenario.fix.lon).display(fmt)}")
+            print(f"Fix Error:         {scenario.fix.error_nmi:.2f} nmi  (iterations: {scenario.fix.iterations})")
+        else:
+            print("Not enough bodies for a fix (<2)")
     if args.output:
         save_scenario(scenario, args.output)
         print(f"\nSaved to {args.output}")

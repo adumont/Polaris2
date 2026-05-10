@@ -7,6 +7,7 @@ from textual.widgets import Button, DataTable, Header, Input, Label, Static
 
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
+from polaris2.core.reduction import recompute_fix
 from polaris2.models import Position, Scenario
 from polaris2.utils.angles import body_label, format_angle
 
@@ -14,6 +15,10 @@ from polaris2.utils.angles import body_label, format_angle
 class Polaris2TUI(App):
     TITLE = "Polaris2 — Celestial Navigation"
     CSS_PATH = "polaris2.tcss"
+
+    def __init__(self):
+        super().__init__()
+        self.scenario: Scenario | None = None
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -35,13 +40,15 @@ class Polaris2TUI(App):
             yield DataTable(id="readings-table", classes="data-table")
             yield Static("Sight Reductions", classes="section-title")
             yield DataTable(id="reductions-table", classes="data-table")
+            with Horizontal():
+                yield Button("Recalculate Fix", id="recalc-btn", variant="default", disabled=True)
             yield Static("", id="fix-info", classes="info-panel")
 
     def on_mount(self) -> None:
         tbl = self.query_one("#readings-table", DataTable)
         tbl.add_columns("Body", "Ho", "Real Alt", "Corr (deg)")
         tbl = self.query_one("#reductions-table", DataTable)
-        tbl.add_columns("Body", "Hc", "Ho", "a (nmi)", "Zn")
+        tbl.add_columns("Use", "Body", "Hc", "Ho", "a (nmi)", "Zn")
 
     @on(Button.Pressed, "#gen-btn")
     def generate(self) -> None:
@@ -60,12 +67,32 @@ class Polaris2TUI(App):
         if seed is not None:
             random.seed(seed)
         scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
-
+        self.scenario = scenario
+        self.query_one("#recalc-btn", Button).disabled = False
         self._update_info(scenario)
         self._update_positions(scenario)
         self._update_readings(scenario)
         self._update_reductions(scenario)
         self._update_fix(scenario)
+
+    @on(DataTable.RowSelected, "#reductions-table")
+    def on_reduction_toggle(self, event: DataTable.RowSelected) -> None:
+        if not self.scenario:
+            return
+        tbl = self.query_one("#reductions-table", DataTable)
+        row_idx = int(event.row_key)
+        if 0 <= row_idx < len(self.scenario.sight_reductions):
+            r = self.scenario.sight_reductions[row_idx]
+            r.selected = not r.selected
+            tbl.update_cell(event.row_key, "Use", "[x]" if r.selected else "[ ]")
+
+    @on(Button.Pressed, "#recalc-btn")
+    def recalculate_fix(self) -> None:
+        if not self.scenario:
+            return
+        recompute_fix(self.scenario)
+        self._update_positions(self.scenario)
+        self._update_fix(self.scenario)
 
     def _update_info(self, s: Scenario) -> None:
         self.query_one("#scenario-info", Static).update(
@@ -94,13 +121,15 @@ class Polaris2TUI(App):
     def _update_reductions(self, s: Scenario) -> None:
         tbl = self.query_one("#reductions-table", DataTable)
         tbl.clear()
-        for r in s.sight_reductions:
+        for i, r in enumerate(s.sight_reductions):
             tbl.add_row(
+                "[x]" if r.selected else "[ ]",
                 body_label(r.body_name),
                 format_angle(r.hc),
                 format_angle(r.ho),
                 f"{r.alpha_nmi:+.2f}",
                 format_angle(r.azimut_zn),
+                key=str(i),
             )
 
     def _update_fix(self, s: Scenario) -> None:

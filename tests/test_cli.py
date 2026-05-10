@@ -1,6 +1,7 @@
 import random
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
+from polaris2.core.reduction import recompute_fix
 
 
 class TestRunScenario:
@@ -11,6 +12,8 @@ class TestRunScenario:
         assert scenario.estimated_position is not None
         assert len(scenario.sextant_readings) >= 2
         assert len(scenario.sight_reductions) >= 2
+        assert scenario.fix is None
+        recompute_fix(scenario)
         assert scenario.fix is not None
         assert scenario.fix.error_nmi is not None
 

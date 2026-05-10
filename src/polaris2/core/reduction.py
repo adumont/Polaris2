@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 import numpy as np
 
 from polaris2.core.almanac import body_alt_az
-from polaris2.models import Fix, Position, SightReduction
+from polaris2.models import Fix, Position, Scenario, SightReduction
 
 _MIN_BODIES = 2
 
@@ -64,6 +64,16 @@ def solve_fix_least_squares(
         if abs(dlat_deg) < tol and abs(dlon_deg) < tol:
             break
     return Fix(lat=lat, lon=lon, iterations=_iteration + 1)
+
+
+def recompute_fix(scenario: Scenario) -> None:
+    selected = [r for r in scenario.sight_reductions if r.selected]
+    if len(selected) < _MIN_BODIES:
+        scenario.fix = None
+        return
+    fix = solve_fix_least_squares(selected, scenario.estimated_position)
+    fix = compute_fix_error(fix, scenario.real_position)
+    scenario.fix = fix
 
 
 def compute_fix_error(fix: Fix, real_pos: Position) -> Fix:

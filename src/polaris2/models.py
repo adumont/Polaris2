@@ -33,6 +33,7 @@ class SightReduction(BaseModel):
     lat_dr: float
     lon_dr: float
     utc: datetime
+    selected: bool = True
 
 
 class Fix(BaseModel):
