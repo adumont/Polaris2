@@ -26,12 +26,12 @@ def _controls() -> tuple[float, float, int | None, str, float]:
     with col2:
         he = st.number_input("Height of Eye (ft)", value=DEFAULT_HE_FT, min_value=0.0, max_value=100.0, step=1.0)
     with col3:
-        seed = st.number_input("Random Seed", value=42, min_value=0, step=1)
+        seed_str = st.text_input("Random Seed (empty for random)", value="")
     with col4:
         fmt = st.radio("Angle Format", options=["dms", "dmm"], horizontal=True)
     with col5:
         zoom = st.slider("Chart Zoom", min_value=0.1, max_value=3.0, value=1.5, step=0.1)
-    return error, he, int(seed) if seed else None, fmt, zoom
+    return error, he, int(seed_str) if seed_str.strip() else None, fmt, zoom
 
 
 def _draw_lop(sight, fix, dr, m):
