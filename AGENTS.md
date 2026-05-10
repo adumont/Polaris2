@@ -37,7 +37,7 @@ src/polaris2/
 ├── core/
 │   ├── scenario.py  # Random Atlantic pos, daylight datetime, DR at error
 │   ├── almanac.py   # Skyfield: body alt/az via observer=earth+latlon
-│   ├── sight.py     # Ho = apparent_alt + dip + SD (no double refraction)
+│   ├── sight.py     # Ho = Skyfield apparent alt (celestial horizon, incl. refraction)
 │   └── reduction.py # Hc, Zn, intercept=Ho-Hc, iterative LSQ fix
 ├── cli/
 │   └── app.py       # argparse entry point
@@ -48,7 +48,7 @@ src/polaris2/
 # Key decisions
 
 - Skyfield 1.54 API: body.observe() requires observer = EARTH + wgs84.latlon()
-- Ho: uses Skyfield's apparent alt (includes refraction) + dip + SD for Sun/Moon
+- Ho: Skyfield apparent alt (celestial horizon, incl. refraction) — no dip/SD needed; Skyfield computes above celestial horizon directly
 - Hc: Skyfield apparent alt at DR position (no additional corrections)
 - intercept = Ho - Hc (nmi). Positive = Toward body (in Zn direction)
 - LSQ solver: A = [cos(Zn), sin(Zn)], b = intercept. Iterative with recomputed Hc

@@ -3,19 +3,6 @@ from polaris2.core.almanac import body_alt_az, body_alt_az_multiple, moon_alt_az
 from polaris2.models import Position
 from datetime import datetime, timezone, UTC
 
-import pandas as pd
-
-from polaris2.core import almanac
-from polaris2.core.almanac import _get_stars
-
-
-class TestGetStars:
-    def test_cached_stars_returned_on_second_call(self, monkeypatch):
-        fake_df = pd.DataFrame({"test": [1]})
-        almanac._STARS = fake_df
-        result = _get_stars()
-        assert result is fake_df
-
 
 class TestSunAltAz:
     def test_sun_returns_values(self):

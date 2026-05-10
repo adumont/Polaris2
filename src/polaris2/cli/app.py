@@ -1,6 +1,6 @@
 import argparse
 import random
-from datetime import datetime
+from datetime import UTC, datetime
 
 from polaris2.config import (
     BEST_ALT_MAX,
@@ -64,6 +64,11 @@ def run_scenario(
         bodies = _select_best_bodies(dt, real_pos)
         if len(bodies) >= _MIN_BODIES_TARGET:
             break
+    else:
+        dt = datetime(2026, 6, 21, 14, 0, 0, tzinfo=UTC)
+        real_pos = Position(lat=35.0, lon=-40.0)
+        dr = dr_position(real_pos, error_nmi)
+        bodies = _select_best_bodies(dt, real_pos)
     scenario = Scenario(
         real_position=real_pos,
         estimated_position=dr,

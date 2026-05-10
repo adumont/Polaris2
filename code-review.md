@@ -8,42 +8,13 @@
 
 ## Overall Assessment
 
-Well-structured, modular Python project with good separation of concerns, consistent patterns, and solid test coverage. The celestial navigation domain logic is sound. 24 findings below, ordered by severity.
+Well-structured, modular Python project with good separation of concerns, consistent patterns, and solid test coverage. The celestial navigation domain logic is sound. 22 findings below, ordered by severity.
 
 ---
 
 ## CRITICAL
 
-### 1. `SextantReading.ho` does not include dip + SD corrections
-
-**File:** `src/polaris2/core/sight.py:29-38`
-
-```python
-apparent_alt, _ = body_alt_az(body_name, dt, real_pos)
-corr = dip_correction(he_ft)
-if body_name in ("Sun", "Moon"):
-    corr += semidiameter_deg(body_name)
-return SextantReading(
-    body_name=body_name,
-    ho=apparent_alt,       # BUG: should be apparent_alt + corr
-    ...
-    correction_total=corr,
-)
-```
-
-`ho` is set to raw `apparent_alt` from Skyfield; dip and SD are computed but never added. Per the README and AGENTS.md, `Ho = apparent_alt + dip + SD`. All downstream intercepts are wrong.
-
-**Fix:** `ho=apparent_alt + corr`
-
-### 2. `solve_fix_least_squares` uses wrong `ho` through the pipeline
-
-**File:** `src/polaris2/core/reduction.py:47-54`
-
-The LSQ solver iteratively recomputes `Hc` at the current estimated position, but uses `SightReduction.ho` stored from the real-position calculation. Since `ho` lacks dip+SD (bug #1), intercepts are doubly wrong.
-
-**Fix:** Fix bug #1 first; verify LSQ receives corrected `ho`.
-
-### 3. `compute_fix_error` mutates input and returns it
+### 1. `compute_fix_error` mutates input and returns it
 
 **File:** `src/polaris2/core/reduction.py:90-99`
 
@@ -62,7 +33,7 @@ Mutates the passed-in `Fix` object as a side effect. Callers (`recompute_fix`) a
 
 ## HIGH
 
-### 4. DR error fallback uses uninitialized values
+### 2. DR error fallback uses uninitialized values
 
 **File:** `src/polaris2/cli/app.py:61-66`
 
@@ -79,7 +50,7 @@ If all 20 attempts fail (very unlikely but possible), `dt`, `real_pos`, `dr`, `b
 
 **Fix:** Add an `else` clause after the loop with a hard fallback.
 
-### 5. Duplicate Skyfield loader in `scenario.py` and `almanac.py`
+### 3. Duplicate Skyfield loader in `scenario.py` and `almanac.py`
 
 Both files independently create:
 ```python
@@ -94,7 +65,7 @@ Ephemeris is loaded twice — wastes memory, slows startup. Stars are only loade
 
 **Fix:** Create a shared `src/polaris2/core/ephemeris.py` that all modules import from.
 
-### 6. Global mutable state for star cache
+### 4. Global mutable state for star cache
 
 **File:** `src/polaris2/core/almanac.py:17`
 
@@ -111,7 +82,7 @@ Module-level mutable state leaks between tests and is not thread-safe. Test at `
 
 **Fix:** Use `functools.cache` or a class-level cache.
 
-### 7. Import-time side effects (disk I/O, ephemeris loading)
+### 5. Import-time side effects (disk I/O, ephemeris loading)
 
 **File:** `src/polaris2/core/scenario.py:10-15`, `src/polaris2/core/almanac.py:11-16`
 
@@ -123,7 +94,7 @@ Creating directories and loading ephemerides at **import time** violates the pri
 
 ## MEDIUM
 
-### 8. `body_alt_az` catches all exceptions silently
+### 6. `body_alt_az` catches all exceptions silently
 
 **File:** `src/polaris2/core/almanac.py:73`
 
@@ -136,13 +107,13 @@ Makes debugging hard if a Skyfield API change or data issue arises.
 
 **Fix:** Log the exception at minimum (`import logging`).
 
-### 9. `_select_best_bodies` fallback complexity
+### 7. `_select_best_bodies` fallback complexity
 
 **File:** `src/polaris2/cli/app.py:40-51`
 
 The fallback from "best range" (30-60°) to extras uses set comprehensions to filter already-selected bodies. More readable as a single pass with priority scoring.
 
-### 10. Hardcoded year 2026
+### 8. Hardcoded year 2026
 
 **File:** `src/polaris2/core/scenario.py:35`
 
@@ -152,7 +123,7 @@ base = datetime(2026, 1, 1, tzinfo=UTC) + timedelta(days=day - 1)
 
 Creates a ticking time-bomb. Ephemeris `de421.bsp` covers ~1900-2050 so 2026 works, but should use `datetime.now().year` or be configurable.
 
-### 11. Magic numbers duplicated and scattered
+### 9. Magic numbers duplicated and scattered
 
 - `3440.065` (earth radius in nmi) appears in `scenario.py:49` and `reduction.py:98`
 - `_MIN_BODIES = 2` in `reduction.py:9` but also `_MIN_BODIES_FOR_FIX = 2`, `_MIN_BODIES_TARGET = 3`, `_MAX_SELECT = 4` in `cli/app.py`
@@ -161,7 +132,7 @@ Creates a ticking time-bomb. Ephemeris `de421.bsp` covers ~1900-2050 so 2026 wor
 
 **Fix:** Centralize all constants in `config.py`.
 
-### 12. `parse_angle` heuristic is fragile
+### 10. `parse_angle` heuristic is fragile
 
 **File:** `src/polaris2/utils/angles.py:50`
 
@@ -174,19 +145,19 @@ else:
 
 Could misclassify ambiguous values like `451059.0` (45°10'59" vs 45°10.59').
 
-### 13. `_draw_lop` duplicates intercept position logic from `solve_fix_single`
+### 11. `_draw_lop` duplicates intercept position logic from `solve_fix_single`
 
 **File:** `src/polaris2/webui/app.py:38-59`
 
 The LOP line drawing recalculates the intercept position from scratch, duplicating the math in `solve_fix_single`. A shared helper would be cleaner.
 
-### 14. No type annotations on `_get_stars`, `_skyfield_star` return types
+### 12. No type annotations on `_get_stars`, `_skyfield_star` return types
 
 **File:** `src/polaris2/core/almanac.py:20-32`
 
 Skyfield's `Star` type is not annotated.
 
-### 15. `_launcher.py` mutates `sys.argv`
+### 13. `_launcher.py` mutates `sys.argv`
 
 **File:** `src/polaris2/webui/_launcher.py:9`
 
@@ -196,7 +167,7 @@ sys.argv = ["streamlit", "run", str(app)]
 
 Necessary for Streamlit but modifies global interpreter state. Should be documented with a comment.
 
-### 16. `format_angle` default `fmt="dms"` is duplicated
+### 14. `format_angle` default `fmt="dms"` is duplicated
 
 Default appears in `format_angle` and `format_position`. Minor but inconsistent if changed in only one place.
 
@@ -204,29 +175,29 @@ Default appears in `format_angle` and `format_position`. Minor but inconsistent 
 
 ## LOW
 
-### 17. No `conftest.py` — 16 test files with no shared fixtures
+### 15. No `conftest.py` — 16 test files with no shared fixtures
 
 Each test file that needs a datetime or position creates its own. A `conftest.py` with `@pytest.fixture` for `sample_dt`, `sample_scenario`, `sample_position` would reduce duplication.
 
-### 18. `test_angles_edge.py` is only 12 lines — merge into `test_angles.py`
+### 16. `test_angles_edge.py` is only 12 lines — merge into `test_angles.py`
 
-### 19. Tested private function `_select_best_bodies` via direct import
+### 17. Tested private function `_select_best_bodies` via direct import
 
 The underscore conventionally marks it private, but `test_cli_select.py` imports and tests it directly. Either make it public or test through `run_scenario`.
 
-### 20. `test_webui.py` and `test_cli_main.py` spawn real subprocesses for main-guard tests
+### 18. `test_webui.py` and `test_cli_main.py` spawn real subprocesses for main-guard tests
 
 Spawn a new Python interpreter — slow and fragile. Consider using `AppTest` or `monkeypatch` instead.
 
-### 21. No tests for `_draw_lop` in webui or `plot_chart` LOP/compass rendering details
+### 19. No tests for `_draw_lop` in webui or `plot_chart` LOP/compass rendering details
 
 Only existence-tested (returns a figure). Edge cases like empty selected bodies, single-body compass rose not covered.
 
-### 22. `compute_fix_error` uses literal `3440.065` — should be named constant from `config.py`
+### 20. `compute_fix_error` uses literal `3440.065` — should be named constant from `config.py`
 
-### 23. Test class `TestSelectBestBodies` tests `_select_best_bodies` — naming mismatch with underscore prefix
+### 21. Test class `TestSelectBestBodies` tests `_select_best_bodies` — naming mismatch with underscore prefix
 
-### 24. `test_webui.py:test_main_guard_via_subprocess` imports `main` but only checks `print('ok')` — weak assertion
+### 22. `test_webui.py:test_main_guard_via_subprocess` imports `main` but only checks `print('ok')` — weak assertion
 
 Only verifies the import doesn't crash, not that `main()` runs correctly.
 
@@ -268,4 +239,3 @@ Only verifies the import doesn't crash, not that `main()` runs correctly.
 - Import-time side effects (ephemeris loading, directory creation)
 - Global mutable state for star cache
 - Missing shared constants (`EARTH_RADIUS_NMI`, etc.)
-- `SextantReading.ho` missing dip/SD corrections (bug #1)

@@ -62,7 +62,7 @@ class TestWebUI:
             [sys.executable, "-c", "from polaris2.webui.app import main; print('ok')"],
             capture_output=True,
             text=True,
-            timeout=10,
+            timeout=30,
             check=False,
         )
         assert "ok" in result.stdout

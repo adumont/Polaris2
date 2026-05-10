@@ -1,24 +1,18 @@
 import math
 import random
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 
-from skyfield.api import Loader, wgs84
+from skyfield.api import wgs84
 
+from polaris2.config import EARTH_RADIUS_NMI
+from polaris2.core.ephemeris import earth, ephemeris, timescale
 from polaris2.models import Position
-
-_CACHE_DIR = Path.home() / ".polaris2" / "skyfield"
-_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-_LOAD = Loader(str(_CACHE_DIR))
-_EPHEMERIS = _LOAD("de421.bsp")
-_TS = _LOAD.timescale()
-_EARTH = _EPHEMERIS["earth"]
 
 
 def _sun_above_horizon(pos: Position, dt: datetime) -> bool:
-    t = _TS.from_datetime(dt.replace(tzinfo=UTC))
-    obs = _EARTH + wgs84.latlon(pos.lat, pos.lon)
-    astrometric = obs.at(t).observe(_EPHEMERIS["sun"]).apparent()
+    t = timescale().from_datetime(dt.replace(tzinfo=UTC))
+    obs = earth() + wgs84.latlon(pos.lat, pos.lon)
+    astrometric = obs.at(t).observe(ephemeris()["sun"]).apparent()
     alt, _, _ = astrometric.altaz()
     return float(alt.degrees) > 0
 
@@ -46,8 +40,7 @@ def random_daylight_datetime(max_attempts: int = 200) -> tuple[datetime, Positio
 
 
 def dr_position(real: Position, error_nmi: float) -> Position:
-    earth_radius_nmi = 3440.065
-    angle_rad = error_nmi / earth_radius_nmi
+    angle_rad = error_nmi / EARTH_RADIUS_NMI
     bearing = random.uniform(0, 2 * math.pi)
     lat1 = math.radians(real.lat)
     lon1 = math.radians(real.lon)

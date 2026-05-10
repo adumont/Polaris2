@@ -19,5 +19,3 @@ class TestComputeHo:
         reading = compute_ho("Moon", dt, pos, 10.0)
         assert reading.body_name == "Moon"
         assert isinstance(reading.ho, float)
-
-

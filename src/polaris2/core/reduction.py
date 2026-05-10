@@ -3,10 +3,9 @@ from datetime import UTC, datetime
 
 import numpy as np
 
+from polaris2.config import EARTH_RADIUS_NMI, MIN_BODIES
 from polaris2.core.almanac import body_alt_az
 from polaris2.models import Fix, Position, Scenario, SightReduction
-
-_MIN_BODIES = 2
 
 
 def compute_hc_zn(
@@ -54,7 +53,7 @@ def solve_fix_least_squares(
             vec.append(intercept_nmi)
         mat = np.array(mat, dtype=float)
         vec = np.array(vec, dtype=float)
-        if mat.shape[0] < _MIN_BODIES:
+        if mat.shape[0] < MIN_BODIES:
             break
         x, _, _, _ = np.linalg.lstsq(mat, vec, rcond=None)
         dlat_deg = x[0] / 60.0
@@ -95,5 +94,4 @@ def compute_fix_error(fix: Fix, real_pos: Position) -> Fix:
         + math.cos(math.radians(real_pos.lat)) * math.cos(math.radians(fix.lat)) * math.sin(dlon / 2) ** 2
     )
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    fix.error_nmi = c * 3440.065
-    return fix
+    return Fix(lat=fix.lat, lon=fix.lon, error_nmi=c * EARTH_RADIUS_NMI, iterations=fix.iterations)
