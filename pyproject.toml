@@ -60,5 +60,6 @@ dev = [
 cli = "polaris2"
 tui = "polaris2-tui"
 web = "streamlit run src/polaris2/webui/app.py"
+test = "pytest tests/"
 
 [tool.uv.sources]
