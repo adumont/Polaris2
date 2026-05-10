@@ -6,7 +6,7 @@
 - Pydantic models for all data
 - YAML persistence (data.yaml)
 - Always test before you hand over your code as finished
-    - when modifying code, maintain existing tests and/or add new tests as needed
+    - when adding/modifying code, maintain existing tests and/or add new tests as needed
 - Maintain the README.md (create if not there)
 - Maintain the AGENTS.md
 
@@ -17,8 +17,9 @@
 - pytest in tests/
 - ruff for lint+format (run: `uv run ruff check --fix .` and `uv run ruff format`)
     - fix all error even minor. we aim a 0 error. don't ignore
-- coverage target: 75%
+- Test Coverage target: minimum 90%
 - Run: `uv run pytest tests/ -v`
+- Cover streamlit tests using AppTest
 
 ## Commit
 

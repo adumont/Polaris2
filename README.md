@@ -43,6 +43,7 @@ src/polaris2/
 │   ├── sight.py     Sextant reading computation
 │   └── reduction.py Sight reduction + LSQ fix solver
 ├── cli/app.py       CLI entry point
+├── tui/app.py       Textual TUI placeholder
 └── webui/app.py     Streamlit + folium map
 ```
 
