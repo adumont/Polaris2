@@ -8,16 +8,17 @@ Screen {
     color: $accent;
 }
 
-.settings-row {
-    height: 3;
+Label {
     padding: 0 1;
+    margin: 0 0;
 }
 
-.settings-row > Input {
-    margin: 0 1 0 0;
+Input {
+    margin: 0 1;
 }
 
-.settings-row > Button {
+Button {
+    margin: 1 1;
     width: 16;
 }
 

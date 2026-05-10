@@ -3,7 +3,7 @@ import random
 from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, VerticalScroll
-from textual.widgets import Button, DataTable, Header, Input, Static
+from textual.widgets import Button, DataTable, Header, Input, Label, Static
 
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
@@ -19,11 +19,13 @@ class Polaris2TUI(App):
         yield Header()
         with VerticalScroll():
             yield Static("Settings", classes="section-title")
-            with Horizontal(classes="settings-row"):
-                yield Input(str(DEFAULT_ERROR_NMI), placeholder="DR Error (nmi)", id="error-input")
-                yield Input(str(DEFAULT_HE_FT), placeholder="Height of Eye (ft)", id="he-input")
-                yield Input("42", placeholder="Seed", id="seed-input")
-                yield Button("Generate", id="gen-btn", variant="primary")
+            yield Label("DR Error (nmi)")
+            yield Input(str(DEFAULT_ERROR_NMI), id="error-input")
+            yield Label("Height of Eye (ft)")
+            yield Input(str(DEFAULT_HE_FT), id="he-input")
+            yield Label("Seed")
+            yield Input("42", id="seed-input")
+            yield Button("Generate", id="gen-btn", variant="primary")
             yield Static("", id="scenario-info", classes="info-panel")
             with Horizontal(classes="positions-row"):
                 yield Static("Real: —", id="real-pos", classes="pos-card")
