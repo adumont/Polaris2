@@ -58,6 +58,7 @@ class Polaris2TUI(App):
         tbl = self.query_one("#reductions-table", DataTable)
         tbl.cursor_type = "row"
         tbl.add_columns(("Use", "Use"), ("Body", "Body"), ("Hs", "Hs"), ("Hc", "Hc"), ("Ho", "Ho"), ("I (nmi)", "I (nmi)"), ("Zn", "Zn"))
+        self.query_one("#fmt-select", RadioSet)._selected = 0
 
     @on(Button.Pressed, "#gen-btn")
     def generate(self) -> None:
