@@ -124,8 +124,8 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
         readings_data.append(
             {
                 "Body": body_label(r.body_name),
+                "Hs": format_angle(r.hs, fmt),
                 "Ho": format_angle(r.ho, fmt),
-                "Real Alt": format_angle(r.real_altitude, fmt),
                 "Corr (deg)": f"{r.correction_total:+.4f}",
             }
         )

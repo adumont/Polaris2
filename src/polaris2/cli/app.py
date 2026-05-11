@@ -147,7 +147,7 @@ def main():
     for r in scenario.sextant_readings:
         a = body_label(r.body_name)
         print(
-            f"  {a:12s}  Ho = {format_angle(r.ho, fmt)}  (alt = {format_angle(r.real_altitude, fmt)}, corr = {r.correction_total:+.4f} deg)"
+            f"  {a:12s}  Hs = {format_angle(r.hs, fmt)}  Ho = {format_angle(r.ho, fmt)}  (corr = {r.correction_total:+.4f} deg)"
         )
     print()
     print("Sight Reductions (from DR):")

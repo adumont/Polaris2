@@ -234,6 +234,7 @@ class TestPolaris2TUI:
             sextant_readings=[
                 __import__("polaris2.models", fromlist=["SextantReading"]).SextantReading(
                     body_name="Sun",
+                    hs=45.0,
                     ho=45.0,
                     utc=datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC),
                     real_altitude=45.0,

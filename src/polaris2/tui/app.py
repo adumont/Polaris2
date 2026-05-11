@@ -46,7 +46,7 @@ class Polaris2TUI(App):
 
     def on_mount(self) -> None:
         tbl = self.query_one("#readings-table", DataTable)
-        tbl.add_columns("Body", "Ho", "Real Alt", "Corr (deg)")
+        tbl.add_columns("Body", "Hs", "Ho", "Corr (deg)")
         tbl = self.query_one("#reductions-table", DataTable)
         tbl.add_columns("Use", "Body", "Hc", "Ho", "I (nmi)", "Zn")
 
@@ -113,8 +113,8 @@ class Polaris2TUI(App):
         for r in s.sextant_readings:
             tbl.add_row(
                 body_label(r.body_name),
+                format_angle(r.hs),
                 format_angle(r.ho),
-                format_angle(r.real_altitude),
                 f"{r.correction_total:+.4f}",
             )
 

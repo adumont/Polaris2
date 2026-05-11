@@ -18,7 +18,8 @@ class Position(BaseModel):
 
 class SextantReading(BaseModel):
     body_name: str
-    ho: float
+    hs: float  # sextant altitude (raw, above visible horizon, before corrections)
+    ho: float  # observed altitude (corrected, above celestial horizon)
     utc: datetime
     real_altitude: float
     correction_total: float
