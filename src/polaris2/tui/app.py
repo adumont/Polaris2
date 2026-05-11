@@ -1,6 +1,6 @@
 import random
 
-from textual import on
+from textual import events, on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Button, DataTable, Header, Input, Label, RadioSet, Static
@@ -56,7 +56,8 @@ class Polaris2TUI(App):
         tbl = self.query_one("#readings-table", DataTable)
         tbl.add_columns("Body", "Hs", "Ho", "Corr (deg)")
         tbl = self.query_one("#reductions-table", DataTable)
-        tbl.add_columns("Use", "Body", "Hs", "Hc", "Ho", "I (nmi)", "Zn")
+        tbl.cursor_type = "row"
+        tbl.add_columns(("Use", "Use"), ("Body", "Body"), ("Hs", "Hs"), ("Hc", "Hc"), ("Ho", "Ho"), ("I (nmi)", "I (nmi)"), ("Zn", "Zn"))
 
     @on(Button.Pressed, "#gen-btn")
     def generate(self) -> None:
@@ -85,16 +86,22 @@ class Polaris2TUI(App):
         if self.scenario:
             self._update_all()
 
-    @on(DataTable.RowSelected, "#reductions-table")
-    def on_reduction_toggle(self, event: DataTable.RowSelected) -> None:
-        if not self.scenario:
+    def _toggle_row(self, row_idx: int) -> None:
+        if not self.scenario or not (0 <= row_idx < len(self.scenario.sight_reductions)):
             return
+        r = self.scenario.sight_reductions[row_idx]
+        r.selected = not r.selected
         tbl = self.query_one("#reductions-table", DataTable)
-        row_idx = int(event.row_key)
-        if 0 <= row_idx < len(self.scenario.sight_reductions):
-            r = self.scenario.sight_reductions[row_idx]
-            r.selected = not r.selected
-            tbl.update_cell(event.row_key, "Use", "[x]" if r.selected else "[ ]")
+        tbl.update_cell(str(row_idx), "Use", "X" if r.selected else " ")
+
+    @on(events.Click, "#reductions-table")
+    def on_reduction_click(self) -> None:
+        tbl = self.query_one("#reductions-table", DataTable)
+        self._toggle_row(tbl.cursor_row)
+
+    @on(DataTable.RowSelected, "#reductions-table")
+    def on_reduction_enter(self, event: DataTable.RowSelected) -> None:
+        self._toggle_row(event.cursor_row)
 
     @on(Button.Pressed, "#recalc-btn")
     def recalculate_fix(self) -> None:
@@ -145,7 +152,7 @@ class Polaris2TUI(App):
         tbl.clear()
         for i, r in enumerate(s.sight_reductions):
             tbl.add_row(
-                "[x]" if r.selected else "[ ]",
+                "X" if r.selected else " ",
                 body_label(r.body_name),
                 format_angle(r.hs, self.fmt),
                 format_angle(r.hc, self.fmt),

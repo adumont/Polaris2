@@ -64,6 +64,48 @@ class TestTUIMain:
 
         asyncio.run(_run())
 
+    def test_headless_toggle_row(self):
+        async def _run():
+            app = Polaris2TUI()
+            fake_scenario = Scenario(
+                real_position=Position(lat=35.0, lon=-40.0),
+                estimated_position=Position(lat=35.1, lon=-39.9),
+                dr_error_nmi=5.0,
+                utc=datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC),
+                he_ft=10.0,
+                sight_reductions=[
+                    SightReduction(
+                        body_name="Sun",
+                        hs=0.0,
+                        ho=45.0,
+                        hc=45.1,
+                        intercept_nmi=-6.0,
+                        azimut_zn=90.0,
+                        lat_dr=35.1,
+                        lon_dr=-39.9,
+                        utc=datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC),
+                    ),
+                ],
+            )
+            async with app.run_test(size=(80, 24)) as pilot:
+                orig_run = tui_app.run_scenario
+                tui_app.run_scenario = lambda *a, **kw: fake_scenario
+                try:
+                    await pilot.click("#gen-btn")
+                    await pilot.pause()
+                    tbl = app.query_one("#reductions-table")
+                    tbl.focus()
+                    await pilot.pause()
+                    assert app.scenario.sight_reductions[0].selected is True
+                    await pilot.press("enter")
+                    await pilot.pause()
+                    assert app.scenario.sight_reductions[0].selected is False
+                finally:
+                    tui_app.run_scenario = orig_run
+                pilot.app.exit()
+
+        asyncio.run(_run())
+
     def test_headless_generate_with_invalid_inputs(self):
         async def _run():
             app = Polaris2TUI()
