@@ -26,14 +26,15 @@ def compute_ho(
     real_pos: Position,
     he_ft: float,
 ) -> SextantReading:
-    apparent_alt, _ = body_alt_az(body_name, dt, real_pos)
-    corr = dip_correction(he_ft)
+    apparent_alt, _ = body_alt_az(body_name, dt, real_pos, apparent=True)
+    geometric_alt, _ = body_alt_az(body_name, dt, real_pos, apparent=False)
+    corr = dip_correction(he_ft) + (geometric_alt - apparent_alt)
     if body_name in ("Sun", "Moon"):
         corr += semidiameter_deg(body_name)
     return SextantReading(
         body_name=body_name,
-        ho=apparent_alt,
+        ho=geometric_alt,
         utc=dt.replace(tzinfo=UTC),
-        real_altitude=apparent_alt,
+        real_altitude=geometric_alt,
         correction_total=corr,
     )

@@ -14,7 +14,7 @@ def compute_hc_zn(
     dr_pos: Position,
     ho: float,
 ) -> SightReduction:
-    alt, az = body_alt_az(body_name, dt, dr_pos)
+    alt, az = body_alt_az(body_name, dt, dr_pos, apparent=False)
     hc = alt
     zn = round(az, 1)
     intercept_nmi = round((ho - hc) * 60.0, 1)
@@ -45,7 +45,7 @@ def solve_fix_least_squares(
         vec = []
         for body_name, utc_dt, ho in bodies_dt:
             cur_pos = Position(lat=lat, lon=lon)
-            alt, az = body_alt_az(body_name, utc_dt, cur_pos)
+            alt, az = body_alt_az(body_name, utc_dt, cur_pos, apparent=False)
             hc = alt
             intercept_nmi = round((ho - hc) * 60.0, 1)
             az_r = math.radians(round(az, 1))

@@ -114,7 +114,7 @@ def _build_map(scenario: Scenario, fmt: str = "dms"):
 def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
     st.subheader("Scenario")
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("UTC", scenario.utc.strftime("%Y-%m-%d %H:%M Z"))
+    c1.metric("UTC", scenario.utc.strftime("%Y-%m-%d %H:%M:%S Z"))
     c2.metric("Real Position", scenario.real_position.display(fmt))
     c3.metric("DR Position", scenario.estimated_position.display(fmt))
     c4.metric("DR Error", f"{scenario.dr_error_nmi:.1f} nmi")

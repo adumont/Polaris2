@@ -48,8 +48,10 @@ src/polaris2/
 # Key decisions
 
 - Skyfield 1.54 API: body.observe() requires observer = EARTH + wgs84.latlon()
-- Ho: Skyfield apparent alt (celestial horizon, incl. refraction) — no dip/SD needed; Skyfield computes above celestial horizon directly
-- Hc: Skyfield apparent alt at DR position (no additional corrections)
+- Ho = Skyfield geometric alt (celestial horizon, no refraction) = traditional Ho. Uses `body_alt_az(apparent=False)` with `pressure_mbar=0`
+- Hc = Skyfield geometric alt at DR position (same `apparent=False` convention as Ho)
+- `correction_total` in SextantReading = dip + (geometric − apparent) + SD, represents traditional Hs→Ho correction
+- Time display MUST show seconds (`%H:%M:%S Z`) in ALL UIs — random seconds in scenario generation cause 13"/sec altitude drift
 - intercept = Ho - Hc (nmi). Positive = Toward body (in Zn direction)
 - LSQ solver: A = [cos(Zn), sin(Zn)], b = intercept. Iterative with recomputed Hc
 - Best bodies: 30-60 deg altitude range, fall back to lower/upper, min 2 bodies

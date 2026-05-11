@@ -52,7 +52,7 @@ def skyfield_star(name: str) -> Star:
     return Star.from_data(row)
 
 
-def body_alt_az(name: str, dt: datetime, pos) -> tuple[float, float]:
+def body_alt_az(name: str, dt: datetime, pos, apparent: bool = True) -> tuple[float, float]:
     t = timescale().from_datetime(dt.replace(tzinfo=UTC))
     observer = earth() + wgs84.latlon(pos.lat, pos.lon)
     if name == "Sun":
@@ -67,5 +67,8 @@ def body_alt_az(name: str, dt: datetime, pos) -> tuple[float, float]:
         msg = f"Unknown body: {name}"
         raise ValueError(msg)
     astrometric = observer.at(t).observe(body).apparent()
-    alt, az, _ = astrometric.altaz()
+    if apparent:
+        alt, az, _ = astrometric.altaz()
+    else:
+        alt, az, _ = astrometric.altaz(temperature_C=10, pressure_mbar=0)
     return round_to_arcsec(float(alt.degrees)), round_to_arcsec(float(az.degrees))
