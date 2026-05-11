@@ -21,6 +21,10 @@
 - Run: `uv run pytest tests/ -v`
 - Cover streamlit tests using AppTest
 
+## Working on an issue
+
+ALWAYS diagnose, and prove yourself that you have found the cause. Then fix, and prove you have fixed it!
+
 ## Commit
 
 - Clean commit, can be single line (small commits) or multiline (when it's a massive change)
