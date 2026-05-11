@@ -3,7 +3,7 @@ import random
 from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, VerticalScroll
-from textual.widgets import Button, DataTable, Header, Input, Label, Static
+from textual.widgets import Button, DataTable, Header, Input, Label, RadioSet, Static
 
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
@@ -19,6 +19,7 @@ class Polaris2TUI(App):
     def __init__(self):
         super().__init__()
         self.scenario: Scenario | None = None
+        self.fmt = "dms"
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -30,6 +31,8 @@ class Polaris2TUI(App):
             yield Input(str(DEFAULT_HE_FT), id="he-input")
             yield Label("Seed")
             yield Input("42", id="seed-input")
+            yield Label("Format")
+            yield RadioSet("DMS", "DMM", id="fmt-select")
             yield Button("Generate", id="gen-btn", variant="primary")
             yield Static("", id="scenario-info", classes="info-panel")
             with Horizontal(classes="positions-row"):
@@ -69,11 +72,13 @@ class Polaris2TUI(App):
         scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
         self.scenario = scenario
         self.query_one("#recalc-btn", Button).disabled = False
-        self._update_info(scenario)
-        self._update_positions(scenario)
-        self._update_readings(scenario)
-        self._update_reductions(scenario)
-        self._update_fix(scenario)
+        self._update_all()
+
+    @on(RadioSet.Changed, "#fmt-select")
+    def on_format_change(self, event: RadioSet.Changed) -> None:
+        self.fmt = "dmm" if str(event.pressed.label) == "DMM" else "dms"
+        if self.scenario:
+            self._update_all()
 
     @on(DataTable.RowSelected, "#reductions-table")
     def on_reduction_toggle(self, event: DataTable.RowSelected) -> None:
@@ -94,16 +99,28 @@ class Polaris2TUI(App):
         self._update_positions(self.scenario)
         self._update_fix(self.scenario)
 
+    def _update_all(self) -> None:
+        s = self.scenario
+        if not s:
+            return
+        self._update_info(s)
+        self._update_positions(s)
+        self._update_readings(s)
+        self._update_reductions(s)
+        self._update_fix(s)
+
     def _update_info(self, s: Scenario) -> None:
         self.query_one("#scenario-info", Static).update(
             f"UTC: {s.utc.strftime('%Y-%m-%d %H:%M:%S')} Z    DR Error: {s.dr_error_nmi:.1f} nmi"
         )
 
     def _update_positions(self, s: Scenario) -> None:
-        self.query_one("#real-pos", Static).update(f"Real: {s.real_position}")
-        self.query_one("#dr-pos", Static).update(f"DR: {s.estimated_position}")
+        self.query_one("#real-pos", Static).update(f"Real: {s.real_position.display(self.fmt)}")
+        self.query_one("#dr-pos", Static).update(f"DR: {s.estimated_position.display(self.fmt)}")
         if s.fix:
-            self.query_one("#fix-pos", Static).update(f"Fix: {Position(lat=s.fix.lat, lon=s.fix.lon)}")
+            self.query_one("#fix-pos", Static).update(
+                f"Fix: {Position(lat=s.fix.lat, lon=s.fix.lon).display(self.fmt)}"
+            )
         else:
             self.query_one("#fix-pos", Static).update("Fix: —")
 
@@ -113,8 +130,8 @@ class Polaris2TUI(App):
         for r in s.sextant_readings:
             tbl.add_row(
                 body_label(r.body_name),
-                format_angle(r.hs),
-                format_angle(r.ho),
+                format_angle(r.hs, self.fmt),
+                format_angle(r.ho, self.fmt),
                 f"{r.correction_total:+.4f}",
             )
 
@@ -125,9 +142,9 @@ class Polaris2TUI(App):
             tbl.add_row(
                 "[x]" if r.selected else "[ ]",
                 body_label(r.body_name),
-                format_angle(r.hs),
-                format_angle(r.hc),
-                format_angle(r.ho),
+                format_angle(r.hs, self.fmt),
+                format_angle(r.hc, self.fmt),
+                format_angle(r.ho, self.fmt),
                 f"{r.intercept_nmi:+.1f}",
                 format_azimuth(r.azimut_zn),
                 key=str(i),
@@ -136,7 +153,7 @@ class Polaris2TUI(App):
     def _update_fix(self, s: Scenario) -> None:
         if s.fix:
             self.query_one("#fix-info", Static).update(
-                f"Fix: {Position(lat=s.fix.lat, lon=s.fix.lon)}  "
+                f"Fix: {Position(lat=s.fix.lat, lon=s.fix.lon).display(self.fmt)}  "
                 f"Lat: {s.fix.lat:.4f}°  Lon: {s.fix.lon:.4f}°  "
                 f"Error: {s.fix.error_nmi:.2f} nmi  (iterations: {s.fix.iterations})"
             )

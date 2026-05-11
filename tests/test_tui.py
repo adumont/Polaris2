@@ -225,6 +225,30 @@ class TestPolaris2TUI:
         app._update_positions(s)
         assert any("Fix" in v for v in updates.values())
 
+    def test_default_format_is_dms(self):
+        app = Polaris2TUI()
+        assert app.fmt == "dms"
+
+    def test_format_change_sets_dmm(self):
+        app = Polaris2TUI()
+        mock_event = type("MockEvent", (), {"pressed": type("MockPressed", (), {"label": "DMM"})()})()
+        app.on_format_change(mock_event)
+        assert app.fmt == "dmm"
+
+    def test_format_change_sets_dms(self):
+        app = Polaris2TUI()
+        app.fmt = "dmm"
+        mock_event = type("MockEvent", (), {"pressed": type("MockPressed", (), {"label": "DMS"})()})()
+        app.on_format_change(mock_event)
+        assert app.fmt == "dms"
+
+    def test_format_change_no_scenario_does_not_crash(self):
+        app = Polaris2TUI()
+        app.scenario = None
+        mock_event = type("MockEvent", (), {"pressed": type("MockPressed", (), {"label": "DMM"})()})()
+        app.on_format_change(mock_event)
+        assert app.fmt == "dmm"
+
     def test_update_readings(self):
         app = Polaris2TUI()
         s = Scenario(

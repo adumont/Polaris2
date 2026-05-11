@@ -22,6 +22,10 @@ Button {
     width: 16;
 }
 
+RadioSet {
+    margin: 0 1 1 1;
+}
+
 .positions-row {
     height: 3;
     padding: 0 1;
