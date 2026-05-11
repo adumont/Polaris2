@@ -3,7 +3,7 @@ import random
 from textual import events, on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
-from textual.widgets import Button, DataTable, Header, Input, Label, RadioSet, Static
+from textual.widgets import Button, DataTable, Header, Input, Label, RadioButton, RadioSet, Static
 
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
@@ -59,6 +59,9 @@ class Polaris2TUI(App):
         tbl.cursor_type = "row"
         tbl.add_columns(("Use", "Use"), ("Body", "Body"), ("Hs", "Hs"), ("Hc", "Hc"), ("Ho", "Ho"), ("I (nmi)", "I (nmi)"), ("Zn", "Zn"))
         self.query_one("#fmt-select", RadioSet)._selected = 0
+        btn = self.query_one("#fmt-select", RadioSet).query(RadioButton).first()
+        if btn:
+            btn.value = True
 
     @on(Button.Pressed, "#gen-btn")
     def generate(self) -> None:

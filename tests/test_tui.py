@@ -4,6 +4,8 @@ import sys
 
 import pytest
 
+from textual.widgets import RadioSet, RadioButton
+
 import polaris2.tui.app as tui_app
 from polaris2.models import Fix, Position, Scenario, SightReduction
 from polaris2.tui.app import Polaris2TUI, main
@@ -290,6 +292,15 @@ class TestPolaris2TUI:
         mock_event = type("MockEvent", (), {"pressed": type("MockPressed", (), {"label": "DMM"})()})()
         app.on_format_change(mock_event)
         assert app.fmt == "dmm"
+
+    def test_default_format_dms_selected(self):
+        async def _run():
+            app = Polaris2TUI()
+            async with app.run_test(size=(80, 24)) as pilot:
+                rs = app.query_one("#fmt-select", RadioSet)
+                assert rs.pressed_index == 0
+                pilot.app.exit()
+        asyncio.run(_run())
 
     def test_update_readings(self):
         app = Polaris2TUI()
