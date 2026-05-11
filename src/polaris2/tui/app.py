@@ -2,7 +2,7 @@ import random
 
 from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal, VerticalScroll
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Button, DataTable, Header, Input, Label, RadioSet, Static
 
 from polaris2.cli.app import run_scenario
@@ -25,15 +25,20 @@ class Polaris2TUI(App):
         yield Header()
         with VerticalScroll():
             yield Static("Settings", classes="section-title")
-            yield Label("DR Error (nmi)")
-            yield Input(str(DEFAULT_ERROR_NMI), id="error-input")
-            yield Label("Height of Eye (ft)")
-            yield Input(str(DEFAULT_HE_FT), id="he-input")
-            yield Label("Seed")
-            yield Input("42", id="seed-input")
-            yield Label("Format")
-            yield RadioSet("DMS", "DMM", id="fmt-select")
-            yield Button("Generate", id="gen-btn", variant="primary")
+            with Horizontal(classes="settings-row"):
+                with Vertical(classes="setting-group"):
+                    yield Label("DR Error (nmi)")
+                    yield Input(str(DEFAULT_ERROR_NMI), id="error-input")
+                with Vertical(classes="setting-group"):
+                    yield Label("HE (ft)")
+                    yield Input(str(DEFAULT_HE_FT), id="he-input")
+                with Vertical(classes="setting-group"):
+                    yield Label("Seed")
+                    yield Input("42", id="seed-input")
+                with Vertical(classes="setting-group"):
+                    yield Label("Format")
+                    yield RadioSet("DMS", "DMM", id="fmt-select")
+                yield Button("Generate", id="gen-btn", variant="primary", classes="gen-btn")
             yield Static("", id="scenario-info", classes="info-panel")
             with Horizontal(classes="positions-row"):
                 yield Static("Real: —", id="real-pos", classes="pos-card")
