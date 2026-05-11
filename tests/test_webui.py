@@ -52,6 +52,16 @@ class TestWebUI:
         btn[0].click().run(timeout=15)
         assert not at.exception
 
+    def test_generate_sets_random_seed_in_session(self):
+        at = AppTest.from_file("src/polaris2/webui/app.py", default_timeout=15)
+        at.run(timeout=15)
+        assert "seed_value" not in at.session_state
+        btn = at.button
+        btn[0].click().run(timeout=15)
+        assert not at.exception
+        assert "seed_value" in at.session_state
+        assert len(str(at.session_state["seed_value"])) > 5
+
     def test_display_without_scenario_shows_info(self):
         at = AppTest.from_file("src/polaris2/webui/app.py", default_timeout=10)
         at.run(timeout=10)

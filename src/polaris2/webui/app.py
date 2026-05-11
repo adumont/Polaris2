@@ -1,4 +1,5 @@
 import math
+import random
 
 import folium
 import streamlit as st
@@ -26,7 +27,7 @@ def _controls() -> tuple[float, float, int | None, str, float]:
     with col2:
         he = st.number_input("Height of Eye (ft)", value=DEFAULT_HE_FT, min_value=0.0, max_value=100.0, step=1.0)
     with col3:
-        seed_str = st.text_input("Random Seed (empty for random)", value="")
+        seed_str = st.text_input("Random Seed (empty for random)", value=st.session_state.get("seed_value", ""))
     with col4:
         fmt = st.radio("Angle Format", options=["dms", "dmm"], horizontal=True)
     with col5:
@@ -192,6 +193,9 @@ def main():
     with st.expander("Settings", expanded=True):
         error, he, seed, fmt, zoom = _controls()
     if st.button("Generate Scenario", type="primary"):
+        if seed is None:
+            seed = random.getrandbits(63)
+        st.session_state.seed_value = str(seed)
         st.session_state.scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
         st.session_state.fmt = fmt
         st.session_state.zoom = zoom
