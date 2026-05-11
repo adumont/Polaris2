@@ -48,7 +48,7 @@ class Polaris2TUI(App):
         tbl = self.query_one("#readings-table", DataTable)
         tbl.add_columns("Body", "Hs", "Ho", "Corr (deg)")
         tbl = self.query_one("#reductions-table", DataTable)
-        tbl.add_columns("Use", "Body", "Hc", "Ho", "I (nmi)", "Zn")
+        tbl.add_columns("Use", "Body", "Hs", "Hc", "Ho", "I (nmi)", "Zn")
 
     @on(Button.Pressed, "#gen-btn")
     def generate(self) -> None:
@@ -125,6 +125,7 @@ class Polaris2TUI(App):
             tbl.add_row(
                 "[x]" if r.selected else "[ ]",
                 body_label(r.body_name),
+                format_angle(r.hs),
                 format_angle(r.hc),
                 format_angle(r.ho),
                 f"{r.intercept_nmi:+.1f}",

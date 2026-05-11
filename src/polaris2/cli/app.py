@@ -79,7 +79,7 @@ def run_scenario(
     for name in bodies:
         reading = compute_ho(name, dt, real_pos, he_ft)
         scenario.sextant_readings.append(reading)
-        reduction = compute_hc_zn(name, dt, dr, reading.ho)
+        reduction = compute_hc_zn(name, dt, dr, reading.ho, hs=reading.hs)
         scenario.sight_reductions.append(reduction)
     return scenario
 
@@ -154,7 +154,7 @@ def main():
     for r in scenario.sight_reductions:
         a = body_label(r.body_name)
         print(
-            f"  {a:12s}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  I = {r.intercept_nmi:+.1f} nmi  Zn = {format_azimuth(r.azimut_zn)}"
+            f"  {a:12s}  Hs = {format_angle(r.hs, fmt)}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  I = {r.intercept_nmi:+.1f} nmi  Zn = {format_azimuth(r.azimut_zn)}"
         )
     print()
     if args.interactive:

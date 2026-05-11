@@ -40,6 +40,7 @@ class TestTUIMain:
                 sight_reductions=[
                     SightReduction(
                         body_name="Sun",
+                        hs=0.0,
                         ho=45.0,
                         hc=45.1,
                         intercept_nmi=-6.0,
@@ -140,6 +141,7 @@ class TestPolaris2TUI:
             sight_reductions=[
                 SightReduction(
                     body_name="Sun",
+                    hs=0.0,
                     ho=45.0,
                     hc=45.1,
                     intercept_nmi=-6.0,

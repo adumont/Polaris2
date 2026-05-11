@@ -27,6 +27,7 @@ class SextantReading(BaseModel):
 
 class SightReduction(BaseModel):
     body_name: str
+    hs: float  # sextant altitude (raw, from corresponding SextantReading)
     ho: float
     hc: float
     intercept_nmi: float

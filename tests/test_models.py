@@ -38,6 +38,7 @@ class TestSightReduction:
         dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
         r = SightReduction(
             body_name="Sun",
+            hs=0.0,
             ho=45.0,
             hc=45.1,
             intercept_nmi=-6.0,
@@ -54,6 +55,7 @@ class TestSightReduction:
         dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
         r = SightReduction(
             body_name="Moon",
+            hs=0.0,
             ho=30.0,
             hc=30.1,
             intercept_nmi=-6.0,
@@ -68,6 +70,7 @@ class TestSightReduction:
         dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
         r = SightReduction(
             body_name="Venus",
+            hs=0.0,
             ho=20.0,
             hc=20.1,
             intercept_nmi=-6.0,
@@ -96,6 +99,7 @@ class TestScenario:
         reading = SextantReading(body_name="Sun", hs=48.1, ho=45.0, utc=dt, real_altitude=48.0, correction_total=-3.0)
         reduction = SightReduction(
             body_name="Sun",
+            hs=0.0,
             ho=45.0,
             hc=45.1,
             intercept_nmi=-6.0,

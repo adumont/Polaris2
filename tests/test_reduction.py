@@ -29,6 +29,7 @@ class TestSolveFixSingle:
         dr = Position(lat=30.0, lon=-40.0)
         reduction = SightReduction(
             body_name="Sun",
+            hs=0.0,
             ho=45.0,
             hc=45.1,
             intercept_nmi=-6.0,
@@ -46,6 +47,7 @@ class TestSolveFixSingle:
         dr = Position(lat=30.0, lon=-40.0)
         reduction = SightReduction(
             body_name="Sun",
+            hs=0.0,
             ho=45.0,
             hc=44.0,
             intercept_nmi=60.0,
@@ -65,6 +67,7 @@ class TestSolveFixLeastSquares:
         reductions = [
             SightReduction(
                 body_name="Sun",
+                hs=0.0,
                 ho=45.0,
                 hc=45.1,
                 intercept_nmi=-6.0,
@@ -75,6 +78,7 @@ class TestSolveFixLeastSquares:
             ),
             SightReduction(
                 body_name="Moon",
+                hs=0.0,
                 ho=30.0,
                 hc=30.05,
                 intercept_nmi=-3.0,
@@ -102,6 +106,7 @@ class TestRecomputeFix:
         reductions = [
             SightReduction(
                 body_name="Sun",
+                hs=0.0,
                 ho=45.0,
                 hc=45.1,
                 intercept_nmi=-6.0,
@@ -113,6 +118,7 @@ class TestRecomputeFix:
             ),
             SightReduction(
                 body_name="Moon",
+                hs=0.0,
                 ho=30.0,
                 hc=30.05,
                 intercept_nmi=-3.0,
@@ -124,6 +130,7 @@ class TestRecomputeFix:
             ),
             SightReduction(
                 body_name="Venus",
+                hs=0.0,
                 ho=20.0,
                 hc=20.05,
                 intercept_nmi=-3.0,
@@ -154,6 +161,7 @@ class TestRecomputeFix:
         reductions = [
             SightReduction(
                 body_name="Sun",
+                hs=0.0,
                 ho=45.0,
                 hc=45.1,
                 intercept_nmi=-6.0,
@@ -183,6 +191,7 @@ class TestRecomputeFix:
         reductions = [
             SightReduction(
                 body_name="Sun",
+                hs=0.0,
                 ho=45.0,
                 hc=45.1,
                 intercept_nmi=-6.0,
@@ -194,6 +203,7 @@ class TestRecomputeFix:
             ),
             SightReduction(
                 body_name="Moon",
+                hs=0.0,
                 ho=30.0,
                 hc=30.05,
                 intercept_nmi=-3.0,

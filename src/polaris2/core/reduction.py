@@ -13,6 +13,7 @@ def compute_hc_zn(
     dt: datetime,
     dr_pos: Position,
     ho: float,
+    hs: float = 0.0,
 ) -> SightReduction:
     alt, az = body_alt_az(body_name, dt, dr_pos, apparent=False)
     hc = alt
@@ -20,6 +21,7 @@ def compute_hc_zn(
     intercept_nmi = round((ho - hc) * 60.0, 1)
     return SightReduction(
         body_name=body_name,
+        hs=hs,
         ho=ho,
         hc=hc,
         intercept_nmi=intercept_nmi,

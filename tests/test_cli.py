@@ -41,6 +41,7 @@ class TestApplySelection:
             sight_reductions=[
                 SightReduction(
                     body_name="Sun",
+                    hs=0.0,
                     ho=45.0,
                     hc=45.1,
                     intercept_nmi=-6.0,
@@ -51,6 +52,7 @@ class TestApplySelection:
                 ),
                 SightReduction(
                     body_name="Moon",
+                    hs=0.0,
                     ho=30.0,
                     hc=30.05,
                     intercept_nmi=-3.0,
@@ -61,6 +63,7 @@ class TestApplySelection:
                 ),
                 SightReduction(
                     body_name="Venus",
+                    hs=0.0,
                     ho=20.0,
                     hc=20.05,
                     intercept_nmi=-3.0,

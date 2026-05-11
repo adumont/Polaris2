@@ -138,6 +138,7 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
                 "idx": i,
                 "selected": r.selected,
                 "Body": body_label(r.body_name),
+                "Hs": format_angle(r.hs, fmt),
                 "Hc": format_angle(r.hc, fmt),
                 "Ho": format_angle(r.ho, fmt),
                 "I (nmi)": f"{r.intercept_nmi:+.1f}",
@@ -155,10 +156,11 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
             "I (nmi)": "I (nmi)",
             "Zn": "Zn",
         },
-        disabled=["idx", "Body", "Hc", "Ho", "I (nmi)", "Zn"],
+        disabled=["idx", "Body", "Hs", "Hc", "Ho", "I (nmi)", "Zn"],
         hide_index=True,
     )
     st.caption(
+        "**Hs** = Sextant altitude (raw) · "
         "**Hc** = Computed altitude at DR · "
         "**Ho** = Observed altitude at real position · "
         "**I (nmi)** = Intercept (Ho − Hc, positive = Toward body) · "
