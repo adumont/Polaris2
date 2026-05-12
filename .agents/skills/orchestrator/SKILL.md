@@ -25,7 +25,7 @@ Phase 5 — Cleanup     (1 agent: remove worktrees)
 
 ### Phase 1 — Issue Analysis (N parallel subagents)
 
-Each agent gets one issue + read-only codebase access.
+Each agent gets one issue + **read-only** codebase access. Agents MUST NOT modify any file — they analyze only and report findings.
 
 **Input:** issue description  
 **Output:** `{ files_touched: [...], module: "...", complexity: "S/M/L", notes: "..." }`
