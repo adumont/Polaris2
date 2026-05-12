@@ -20,8 +20,8 @@ def _setup_page():
     )
 
 
-def _controls() -> tuple[float, float, int | None, str, float]:
-    col1, col2, col3, col4, col5 = st.columns(5)
+def _controls() -> tuple[float, float, int | None, str]:
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         error = st.number_input("DR Error (nmi)", value=DEFAULT_ERROR_NMI, min_value=1.0, max_value=50.0, step=0.5)
     with col2:
@@ -30,9 +30,7 @@ def _controls() -> tuple[float, float, int | None, str, float]:
         seed_str = st.text_input("Random Seed (empty for random)", value=st.session_state.get("seed_value", ""))
     with col4:
         fmt = st.radio("Angle Format", options=["dms", "dmm"], horizontal=True)
-    with col5:
-        zoom = st.slider("Chart Zoom", min_value=0.1, max_value=3.0, value=1.5, step=0.1)
-    return error, he, int(seed_str) if seed_str.strip() else None, fmt, zoom
+    return error, he, int(seed_str) if seed_str.strip() else None, fmt
 
 
 def _draw_lop(sight, fix, dr, m):
@@ -112,7 +110,7 @@ def _build_map(scenario: Scenario, fmt: str = "dms"):
     return m
 
 
-def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
+def _display(scenario: Scenario, fmt: str = "dms"):
     st.subheader("Scenario")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("UTC", scenario.utc.strftime("%Y-%m-%d %H:%M:%S Z"))
@@ -182,6 +180,14 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
         m = _build_map(scenario, fmt)
         st_folium(m, width=None, height=600)
     with col_chart:
+        zoom_col, btn_col = st.columns([3, 1])
+        with zoom_col:
+            st.slider("Chart Zoom", min_value=0.1, max_value=3.0, value=1.5, step=0.1, key="zoom_slider")
+        with btn_col:
+            if st.button("Apply Zoom"):
+                st.session_state.zoom_applied = st.session_state.zoom_slider
+                st.rerun()
+        zoom = st.session_state.get("zoom_applied", 1.5)
         fig = plot_chart(scenario, zoom=zoom)
         st.pyplot(fig)
 
@@ -191,16 +197,16 @@ def main():
     st.title("Polaris2 - Celestial Navigation Simulator")
     st.markdown("Generate a realistic celestial navigation scenario with random real/DR positions and sight reduction.")
     with st.expander("Settings", expanded=True):
-        error, he, seed, fmt, zoom = _controls()
+        error, he, seed, fmt = _controls()
     if st.button("Generate Scenario", type="primary"):
         if seed is None:
             seed = random.getrandbits(63)
         st.session_state.seed_value = str(seed)
         st.session_state.scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
         st.session_state.fmt = fmt
-        st.session_state.zoom = zoom
+        st.session_state.zoom_applied = 1.5
     if "scenario" in st.session_state:
-        _display(st.session_state.scenario, st.session_state.fmt, st.session_state.get("zoom", 1.5))
+        _display(st.session_state.scenario, st.session_state.fmt)
     else:
         st.info("Click **Generate Scenario** to start.")
 
