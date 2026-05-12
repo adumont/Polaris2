@@ -38,19 +38,28 @@ Uses `scripts/manage_worktrees.py setup`:
 
 ```
 python .agents\skills\orchestrator\scripts\manage_worktrees.py setup ^
-    --repo-root C:\Projects\Polaris2 ^
     --session 2026-05-12-my-session ^
     feature-a feature-b feature-c
 ```
 
-What the script does per feature:
-1. `git worktree add -b feature/<name> <worktree-path> HEAD` — fails early on error
-2. Copies `.env` from repo root to worktree (if exists)
-3. Runs `uv sync --quiet` in the worktree
+Repo root is auto-detected from cwd. Override with `--repo-root <path>` if needed.
 
-Worktree path convention: `C:\Projects\.worktrees\<repo-name>\feature\<name>`
+Worktree path convention: `~/.worktrees/<repo-hash>/<session>/<name>`
+
+- Uses SHA256 hash of resolved repo path (first 8 chars) to avoid collisions between repos with the same name at different paths.
+- Session name in path isolates concurrent orchestration runs — no collision between `2026-05-12-fix-bugs` and `2026-05-12-refactor`.
+
+**What the script does per feature:**
+1. Pre-flight validation: checks `git`, `uv`, `python` available; repo is clean
+2. Checks if branch already exists locally (handles re-runs after cleanup where branches survive)
+   - Branch exists → `git worktree add <path> <existing-branch>` (re-attach)
+   - No branch → `git worktree add -b feature/<name> <path> HEAD` (create + attach)
+3. Copies `.env` from repo root to worktree (if exists)
+4. Runs `uv sync --quiet` in the worktree
 
 **"Fails early":** Stop all worktrees on first failure, report error.
+
+**Rollback:** If worktree 4/5 fails during setup, previously created worktrees (1-3) are automatically removed to prevent dangling state.
 
 ### Phase 2 — Execution (N subagents, start order per DAG)
 
@@ -113,18 +122,27 @@ Uses `scripts/manage_worktrees.py cleanup`:
 
 ```
 python .agents\skills\orchestrator\scripts\manage_worktrees.py cleanup ^
-    --repo-root C:\Projects\Polaris2 ^
+    --session 2026-05-12-my-session ^
+    [--force] ^
     feature-a feature-b feature-c
 ```
+
+`--session` is required to locate worktrees (since path includes session name).
+`--force` passes `--force` to `git worktree remove`, allowing cleanup of dirty worktrees.
 
 Removes each worktree. Branches survive (`git branch --list 'feature/*'`). Session branch remains in repo.
 
 ## Worktree Script
 
-See `scripts/manage_worktrees.py` — handles setup + cleanup.
+See `scripts/manage_worktrees.py` — handles setup, cleanup, and status.
 
 ```
 Usage:
-  setup:   python manage_worktrees.py setup --repo-root <path> --session <name> <features...>
-  cleanup: python manage_worktrees.py cleanup --repo-root <path> <features...>
+  setup:   python manage_worktrees.py setup --session <name> [--repo-root <path>] <features...>
+  cleanup: python manage_worktrees.py cleanup --session <name> [--repo-root <path>] [--force] <features...>
+  status:  python manage_worktrees.py status [--repo-root <path>]
 ```
+
+Repo root auto-detected from cwd; `--repo-root` only needed when running outside the repo.
+
+The **`status`** subcommand lists all sessions and worktrees for a repo, showing which are dirty. Useful for checking state before cleanup or spotting dangling worktrees.
