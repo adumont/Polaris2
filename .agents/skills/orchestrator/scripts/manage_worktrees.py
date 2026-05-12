@@ -233,18 +233,24 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     setup_parser = subparsers.add_parser("setup", help="Create worktrees + environment")
-    setup_parser.add_argument("--repo-root", type=Path, default=None, help="Git repository root (auto-detected from cwd)")
+    setup_parser.add_argument(
+        "--repo-root", type=Path, default=None, help="Git repository root (auto-detected from cwd)"
+    )
     setup_parser.add_argument("--session", required=True, help="Session name (e.g. 2026-05-12-fix-bugs)")
     setup_parser.add_argument("features", nargs="+", help="Feature names")
 
     cleanup_parser = subparsers.add_parser("cleanup", help="Remove worktrees (branches survive)")
-    cleanup_parser.add_argument("--repo-root", type=Path, default=None, help="Git repository root (auto-detected from cwd)")
+    cleanup_parser.add_argument(
+        "--repo-root", type=Path, default=None, help="Git repository root (auto-detected from cwd)"
+    )
     cleanup_parser.add_argument("--session", required=True, help="Session name used during setup")
     cleanup_parser.add_argument("--force", action="store_true", help="Force remove even if dirty")
     cleanup_parser.add_argument("features", nargs="+", help="Feature names")
 
     status_parser = subparsers.add_parser("status", help="List worktrees and their state")
-    status_parser.add_argument("--repo-root", type=Path, default=None, help="Git repository root (auto-detected from cwd)")
+    status_parser.add_argument(
+        "--repo-root", type=Path, default=None, help="Git repository root (auto-detected from cwd)"
+    )
 
     args = parser.parse_args()
 
