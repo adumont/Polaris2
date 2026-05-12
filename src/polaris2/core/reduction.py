@@ -35,36 +35,25 @@ def compute_hc_zn(
 def solve_fix_least_squares(
     reductions: list[SightReduction],
     dr_pos: Position,
-    max_iter: int = 15,
-    tol: float = 1e-6,
 ) -> Fix:
     lat = dr_pos.lat
     lon = dr_pos.lon
-    bodies_dt = [(r.body_name, r.utc, r.ho) for r in reductions]
-    _iteration = 0
-    for _iteration in range(max_iter):
-        mat = []
-        vec = []
-        for body_name, utc_dt, ho in bodies_dt:
-            cur_pos = Position(lat=lat, lon=lon)
-            alt, az = body_alt_az(body_name, utc_dt, cur_pos, apparent=False)
-            hc = alt
-            intercept_nmi = round((ho - hc) * 60.0, 1)
-            az_r = math.radians(round(az, 1))
-            mat.append([math.cos(az_r), math.sin(az_r)])
-            vec.append(intercept_nmi)
-        mat = np.array(mat, dtype=float)
-        vec = np.array(vec, dtype=float)
-        if mat.shape[0] < MIN_BODIES:
-            break
-        x, _, _, _ = np.linalg.lstsq(mat, vec, rcond=None)
-        dlat_deg = x[0] / 60.0
-        dlon_deg = x[1] / (60.0 * math.cos(math.radians(lat)))
-        lat += dlat_deg
-        lon += dlon_deg
-        if abs(dlat_deg) < tol and abs(dlon_deg) < tol:
-            break
-    return Fix(lat=lat, lon=lon, iterations=_iteration + 1)
+    mat = []
+    vec = []
+    for r in reductions:
+        az_r = math.radians(r.azimut_zn)
+        mat.append([math.cos(az_r), math.sin(az_r)])
+        vec.append(r.intercept_nmi)
+    if len(mat) < MIN_BODIES:
+        return Fix(lat=lat, lon=lon, iterations=0)
+    mat_arr = np.array(mat, dtype=float)
+    vec_arr = np.array(vec, dtype=float)
+    x, _, _, _ = np.linalg.lstsq(mat_arr, vec_arr, rcond=None)
+    dlat_deg = float(x[0]) / 60.0
+    dlon_deg = float(x[1]) / (60.0 * math.cos(math.radians(lat)))
+    lat += dlat_deg
+    lon += dlon_deg
+    return Fix(lat=lat, lon=lon, iterations=1)
 
 
 def solve_fix_single(reduction: SightReduction, dr_pos: Position) -> Fix:

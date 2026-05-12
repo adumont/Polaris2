@@ -300,6 +300,7 @@ class TestPolaris2TUI:
                 rs = app.query_one("#fmt-select", RadioSet)
                 assert rs.pressed_index == 0
                 pilot.app.exit()
+
         asyncio.run(_run())
 
     def test_update_readings(self):
