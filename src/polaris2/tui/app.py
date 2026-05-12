@@ -1,15 +1,71 @@
 import random
+from contextlib import suppress
 
 from textual import events, on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Header, Input, Label, RadioButton, RadioSet, Static
 
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
 from polaris2.core.reduction import recompute_fix
-from polaris2.models import Position, Scenario
+from polaris2.models import Position, Scenario, SightReduction
 from polaris2.utils.angles import body_label, format_angle, format_azimuth
+
+
+class SightEditScreen(ModalScreen):
+    CSS = """
+    SightEditScreen {
+        align: center middle;
+    }
+    #edit-dialog {
+        width: 42;
+        height: auto;
+        border: thick $primary;
+        background: $surface;
+        padding: 1 2;
+    }
+    #edit-dialog > Label {
+        margin: 1 0 0 0;
+    }
+    #edit-dialog > Input {
+        margin: 0 0 1 0;
+    }
+    #edit-dialog > Horizontal {
+        height: auto;
+        align: center middle;
+    }
+    """
+
+    def __init__(self, reduction: SightReduction, label: str) -> None:
+        super().__init__()
+        self.reduction = reduction
+        self.label = label
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="edit-dialog"):
+            yield Label(f"Edit {self.label}")
+            yield Label("Intercept I (nmi):")
+            yield Input(value=f"{self.reduction.intercept_nmi:+.1f}", id="intercept-input")
+            yield Label("Azimuth Zn (°):")
+            yield Input(value=f"{self.reduction.azimut_zn:.1f}", id="azimuth-input")
+            with Horizontal():
+                yield Button("Save", variant="primary", id="save-btn")
+                yield Button("Cancel", id="cancel-btn")
+
+    @on(Button.Pressed, "#save-btn")
+    def save(self) -> None:
+        with suppress(ValueError):
+            i = float(self.query_one("#intercept-input", Input).value)
+            zn = float(self.query_one("#azimuth-input", Input).value)
+            self.reduction.intercept_nmi = round(i, 1)
+            self.reduction.azimut_zn = round(zn, 1)
+            self.dismiss(True)
+
+    @on(Button.Pressed, "#cancel-btn")
+    def cancel(self) -> None:
+        self.dismiss(False)
 
 
 class Polaris2TUI(App):
@@ -49,6 +105,7 @@ class Polaris2TUI(App):
             yield Static("Sight Reductions", classes="section-title")
             yield DataTable(id="reductions-table", classes="data-table")
             with Horizontal():
+                yield Button("Edit Sight Reduction", id="edit-btn", variant="default", disabled=True)
                 yield Button("Recalculate Fix", id="recalc-btn", variant="default", disabled=True)
             yield Static("", id="fix-info", classes="info-panel")
 
@@ -57,7 +114,16 @@ class Polaris2TUI(App):
         tbl.add_columns("Body", "Hs", "Ho", "Corr (deg)")
         tbl = self.query_one("#reductions-table", DataTable)
         tbl.cursor_type = "row"
-        tbl.add_columns(("Use", "Use"), ("Body", "Body"), ("Hs", "Hs"), ("Hc", "Hc"), ("Ho", "Ho"), ("I (nmi)", "I (nmi)"), ("Zn", "Zn"))
+        tbl.add_columns(
+            ("Use", "Use"),
+            ("Body", "Body"),
+            ("Hs", "Hs"),
+            ("Hc", "Hc"),
+            ("Ho", "Ho"),
+            ("I (nmi)", "I (nmi)"),
+            ("Zn", "Zn"),
+        )
+
         self.query_one("#fmt-select", RadioSet)._selected = 0
         btn = self.query_one("#fmt-select", RadioSet).query(RadioButton).first()
         if btn:
@@ -82,6 +148,7 @@ class Polaris2TUI(App):
         scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
         self.scenario = scenario
         self.query_one("#recalc-btn", Button).disabled = False
+        self.query_one("#edit-btn", Button).disabled = False
         self._update_all()
 
     @on(RadioSet.Changed, "#fmt-select")
@@ -101,7 +168,21 @@ class Polaris2TUI(App):
     @on(events.Click, "#reductions-table")
     def on_reduction_click(self) -> None:
         tbl = self.query_one("#reductions-table", DataTable)
-        self._toggle_row(tbl.cursor_row)
+        if tbl.cursor_column == 0:
+            self._toggle_row(tbl.cursor_row)
+
+    @on(Button.Pressed, "#edit-btn")
+    def edit_reduction(self) -> None:
+        if not self.scenario:
+            return
+        row_idx = self.query_one("#reductions-table", DataTable).cursor_row
+        if 0 <= row_idx < len(self.scenario.sight_reductions):
+            r = self.scenario.sight_reductions[row_idx]
+            self.push_screen(SightEditScreen(r, body_label(r.body_name)), self._on_edit_done)
+
+    def _on_edit_done(self, result: bool | None) -> None:
+        if result and self.scenario:
+            self._update_reductions(self.scenario)
 
     @on(DataTable.RowSelected, "#reductions-table")
     def on_reduction_enter(self, event: DataTable.RowSelected) -> None:

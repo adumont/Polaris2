@@ -39,7 +39,7 @@ class TestWebUI:
         at = AppTest.from_file("src/polaris2/webui/app.py", default_timeout=10)
         at.session_state["scenario"] = scenario
         at.session_state["fmt"] = "dms"
-        at.session_state["zoom"] = 1.5
+        at.session_state["zoom_applied"] = 1.5
         at.run(timeout=10)
         assert not at.exception
 
