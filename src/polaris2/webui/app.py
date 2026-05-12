@@ -137,7 +137,6 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
         red_data.append(
             {
                 "idx": i,
-                "selected": r.selected,
                 "Body": body_label(r.body_name),
                 "Hs": format_angle(r.hs, fmt),
                 "Hc": format_angle(r.hc, fmt),
@@ -146,19 +145,13 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
                 "Zn": format_azimuth(r.azimut_zn),
             }
         )
-    edited = st.data_editor(
+    selection = st.dataframe(
         red_data,
-        column_config={
-            "idx": None,
-            "selected": st.column_config.CheckboxColumn("Use"),
-            "Body": "Body",
-            "Hc": "Hc",
-            "Ho": "Ho",
-            "I (nmi)": "I (nmi)",
-            "Zn": "Zn",
-        },
-        disabled=["idx", "Body", "Hs", "Hc", "Ho", "I (nmi)", "Zn"],
+        column_config={"idx": None},
         hide_index=True,
+        use_container_width=True,
+        on_select="rerun",
+        selection_mode="multi-row",
     )
     st.caption(
         "**Hs** = Sextant altitude (raw) · "
@@ -167,9 +160,10 @@ def _display(scenario: Scenario, fmt: str = "dms", zoom: float = 1.5):
         "**I (nmi)** = Intercept (Ho − Hc, positive = Toward body) · "
         "**Zn** = Azimuth of body"
     )
-    if st.button("Recalculate Fix"):
-        for row in edited:
-            scenario.sight_reductions[row["idx"]].selected = row["selected"]
+    if st.button("Calculate Fix"):
+        selected_indices = selection.selection.rows
+        for i, r in enumerate(scenario.sight_reductions):
+            r.selected = i in selected_indices
         recompute_fix(scenario)
         st.rerun()
     st.subheader("Charts")
