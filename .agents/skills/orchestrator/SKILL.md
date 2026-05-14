@@ -44,10 +44,9 @@ python .agents\skills\orchestrator\scripts\manage_worktrees.py setup ^
 
 Repo root is auto-detected from cwd. Override with `--repo-root <path>` if needed.
 
-Worktree path convention: `~/.worktrees/<repo-hash>/<session>/<name>`
+Worktree path convention: `.worktrees/<session>/<name>` (relative to repo root)
 
-- Uses SHA256 hash of resolved repo path (first 8 chars) to avoid collisions between repos with the same name at different paths.
-- Session name in path isolates concurrent orchestration runs — no collision between `2026-05-12-fix-bugs` and `2026-05-12-refactor`.
+Session name isolates concurrent orchestration runs — no collision between `2026-05-12-fix-bugs` and `2026-05-12-refactor`.
 
 **What the script does per feature:**
 1. Pre-flight validation: checks `git`, `uv`, `python` available; repo is clean
@@ -77,11 +76,12 @@ Each agent gets:
 
 **Coding guidelines (every exec agent must follow):**
 - Follow existing code conventions (models, imports, patterns, typings, etc.)
+- Sanity check: use /review scoped to your changes to get a review of your changes before you run tests 
 - Run `uv run ruff check --fix . && uv run ruff format` — zero errors target
 - Run `uv run pytest tests/ -v` — all existing tests pass
 - Maintain coverage: ≥90% overall, ≥80% per file (no exclusions)
 - No debug artifacts, no commented-out code, no secrets committed
-- Commit cleanly to `feature/<name>` in their worktree
+- Commit cleanly to `feature/<name>` in their worktree.
 
 **Start order per DAG:**
 - Coordinator starts all parallel-safe tasks simultaneously

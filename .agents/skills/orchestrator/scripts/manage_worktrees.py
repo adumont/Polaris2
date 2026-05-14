@@ -27,7 +27,6 @@ Examples:
 """
 
 import argparse
-import hashlib
 import shutil
 import subprocess
 import sys
@@ -57,14 +56,9 @@ def resolve_repo_root(path=None):
     sys.exit(1)
 
 
-def get_repo_id(repo_root):
-    return hashlib.sha256(str(repo_root.resolve()).encode()).hexdigest()[:8]
-
-
 def resolve_worktree_paths(repo_root, session, features):
     repo_root = repo_root.resolve()
-    repo_id = get_repo_id(repo_root)
-    worktrees_dir = Path.home() / ".worktrees" / repo_id / session
+    worktrees_dir = repo_root / ".worktrees" / session
     return [(f"feature/{name}", worktrees_dir / name) for name in features]
 
 
@@ -197,19 +191,18 @@ def cmd_cleanup(args):
 
 def cmd_status(args):
     repo_root = resolve_repo_root(args.repo_root)
-    repo_id = get_repo_id(repo_root)
-    worktrees_base = Path.home() / ".worktrees" / repo_id
+    worktrees_base = repo_root / ".worktrees"
 
     if not worktrees_base.exists():
-        print(f"No worktrees found for {repo_root.name} ({repo_id})")
+        print(f"No worktrees found for {repo_root.name}")
         return
 
     sessions = sorted(s for s in worktrees_base.iterdir() if s.is_dir())
     if not sessions:
-        print(f"No worktrees found for {repo_root.name} ({repo_id})")
+        print(f"No worktrees found for {repo_root.name}")
         return
 
-    print(f"Worktrees for {repo_root.name} ({repo_id}):")
+    print(f"Worktrees for {repo_root.name}:")
     print()
 
     for session_dir in sessions:

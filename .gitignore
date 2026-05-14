@@ -31,3 +31,6 @@ pytest_phase*.txt
 *.egg-info/
 *.yaml
 *.yml
+
+# Orchestrator worktrees
+.worktrees/
