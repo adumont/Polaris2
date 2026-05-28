@@ -41,7 +41,7 @@ src/polaris2/
 ├── core/
 │   ├── scenario.py  # Random Atlantic pos, daylight datetime, DR at error
 │   ├── almanac.py   # Skyfield: body alt/az via observer=earth+latlon
-│   ├── sight.py     # Ho = Skyfield apparent alt (celestial horizon, incl. refraction)
+│   ├── sight.py     # Hs = raw sextant alt + dip + SD → Ho = Skyfield geometric alt
 │   └── reduction.py # Hc, Zn, intercept=Ho-Hc, iterative LSQ fix
 ├── cli/
 │   └── app.py       # argparse entry point
@@ -52,9 +52,13 @@ src/polaris2/
 # Key decisions
 
 - Skyfield 1.54 API: body.observe() requires observer = EARTH + wgs84.latlon()
-- Ho = Skyfield geometric alt (celestial horizon, no refraction) = traditional Ho. Uses `body_alt_az(apparent=False)` with `pressure_mbar=0`
+- `body_alt_az(apparent=True)` passes `temperature_C=10, pressure_mbar=1010` — altitude WITH standard refraction
+- `body_alt_az(apparent=False)` passes `temperature_C=10, pressure_mbar=0` — geometric altitude (no refraction)
+- Ho = Skyfield geometric alt (center, no refraction) = same for ALL bodies
 - Hc = Skyfield geometric alt at DR position (same `apparent=False` convention as Ho)
-- `correction_total` in SextantReading = dip + (geometric − apparent) + SD, represents traditional Hs→Ho correction
+- For Sun/Moon: `hs = apparent_alt - dip - sd` = lower limb sextant reading
+- For planets/stars: `hs = apparent_alt - dip` = center sextant reading (sd=0)
+- `correction_total = dip + (geometric - apparent) + sd` = traditional Hs→Ho correction. Always satisfies `hs + corr = ho`
 - Time display MUST show seconds (`%H:%M:%S Z`) in ALL UIs — random seconds in scenario generation cause 13"/sec altitude drift
 - intercept = Ho - Hc (nmi). Positive = Toward body (in Zn direction)
 - LSQ solver: A = [cos(Zn), sin(Zn)], b = intercept. Iterative with recomputed Hc
