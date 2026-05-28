@@ -17,6 +17,7 @@ def _setup_page():
     st.set_page_config(
         page_title="Polaris2 — Celestial Navigation Simulator",
         layout="wide",
+        page_icon=":material/sailing:",
     )
 
 
