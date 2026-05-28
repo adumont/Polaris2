@@ -29,7 +29,7 @@ def _controls() -> tuple[float, float, int | None, str]:
     with col3:
         seed_str = st.text_input("Random Seed (empty for random)", value=st.session_state.get("seed_value", ""))
     with col4:
-        fmt = st.radio("Angle Format", options=["dms", "dmm"], horizontal=True)
+        fmt = st.radio("Angle Format", options=["dms", "dmm"], horizontal=True, key="fmt")
     return error, he, int(seed_str) if seed_str.strip() else None, fmt
 
 
@@ -197,7 +197,6 @@ def main():
             seed = random.getrandbits(63)
         st.session_state.seed_value = str(seed)
         st.session_state.scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
-        st.session_state.fmt = fmt
         st.session_state.zoom_applied = 1.5
     if "scenario" in st.session_state:
         _display(st.session_state.scenario, st.session_state.fmt)
