@@ -29,6 +29,7 @@ ALWAYS diagnose, and prove yourself that you have found the cause. Then fix, and
 
 - Clean commit, can be single line (small commits) or multiline (when it's a massive change)
 - Never do a "git add .", add only the files you have touched!
+- Never use `--no-ff` on merges — fast-forward only, no merge bubbles
 
 # Architecture
 
