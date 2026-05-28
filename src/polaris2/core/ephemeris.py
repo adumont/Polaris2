@@ -68,7 +68,7 @@ def body_alt_az(name: str, dt: datetime, pos, apparent: bool = True) -> tuple[fl
         raise ValueError(msg)
     astrometric = observer.at(t).observe(body).apparent()
     if apparent:
-        alt, az, _ = astrometric.altaz()
+        alt, az, _ = astrometric.altaz(temperature_C=10, pressure_mbar=1010)
     else:
         alt, az, _ = astrometric.altaz(temperature_C=10, pressure_mbar=0)
     return round_to_arcsec(float(alt.degrees)), round_to_arcsec(float(az.degrees))

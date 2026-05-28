@@ -30,7 +30,7 @@ def compute_ho(
     geometric_alt, _ = body_alt_az(body_name, dt, real_pos, apparent=False)
     dip = dip_correction(he_ft)
     sd = semidiameter_deg(body_name) if body_name in ("Sun", "Moon") else 0.0
-    hs = apparent_alt - dip  # raw sextant alt (center, above visible horizon)
+    hs = apparent_alt - dip - sd  # raw sextant alt (lower limb for Sun/Moon, center for others)
     ho = geometric_alt
     corr = dip + (geometric_alt - apparent_alt) + sd
     return SextantReading(
