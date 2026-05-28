@@ -215,7 +215,8 @@ def main():
         if seed is None:
             seed = random.getrandbits(63)
         st.session_state.seed_value = str(seed)
-        st.session_state.scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
+        scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
+        st.session_state.scenario = scenario
         st.session_state.zoom_applied = 1.5
     if "scenario" in st.session_state:
         _display(st.session_state.scenario, st.session_state.fmt)

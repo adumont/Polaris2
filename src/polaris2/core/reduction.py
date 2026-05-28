@@ -80,6 +80,8 @@ def recompute_fix(scenario: Scenario) -> None:
 
 _SINGULARITY_THRESHOLD = 1e-15
 _MIN_BODIES_SUGGEST = 2
+_SUGGEST_BEST = 2
+_SUGGEST_FALLBACK = 3
 
 
 def _lop_condition_number(reductions: list[SightReduction]) -> float:

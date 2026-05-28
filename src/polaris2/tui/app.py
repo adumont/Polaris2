@@ -9,7 +9,7 @@ from textual.widgets import Button, DataTable, Header, Input, Label, RadioButton
 
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
-from polaris2.core.reduction import recompute_fix
+from polaris2.core.reduction import _SUGGEST_BEST, _SUGGEST_FALLBACK, recompute_fix, suggest_best_lops
 from polaris2.models import Position, Scenario, SightReduction
 from polaris2.utils.angles import body_label, format_angle, format_azimuth
 
@@ -146,6 +146,16 @@ class Polaris2TUI(App):
         if seed is not None:
             random.seed(seed)
         scenario = run_scenario(error_nmi=error, he_ft=he, seed=seed)
+        suggestion = suggest_best_lops(scenario.sight_reductions)
+        if _SUGGEST_BEST in suggestion:
+            indices, _ = suggestion[_SUGGEST_BEST]
+            for i, r in enumerate(scenario.sight_reductions):
+                r.selected = i in indices
+        elif _SUGGEST_FALLBACK in suggestion:
+            indices, _ = suggestion[_SUGGEST_FALLBACK]
+            for i, r in enumerate(scenario.sight_reductions):
+                r.selected = i in indices
+        recompute_fix(scenario)
         self.scenario = scenario
         self.query_one("#recalc-btn", Button).disabled = False
         self.query_one("#edit-btn", Button).disabled = False
