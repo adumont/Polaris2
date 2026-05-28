@@ -83,8 +83,10 @@ def format_angle(deg: float, fmt: str = "dms") -> str:
 
 
 def body_label(name: str) -> str:
-    if name in ("Sun", "Moon"):
-        return name
+    if name == "Sun":
+        return "Sun L"
+    if name == "Moon":
+        return "Moon L"
     if name in PLANET_BODIES:
         return name
     idx = NAVPAC_STAR_INDEX.get(name)
