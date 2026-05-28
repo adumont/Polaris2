@@ -147,7 +147,7 @@ def _display(scenario: Scenario, fmt: str = "dms"):
         red_data,
         column_config={"idx": None},
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
         on_select="rerun",
         selection_mode="multi-row",
     )
