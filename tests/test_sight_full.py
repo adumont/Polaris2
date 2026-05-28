@@ -1,5 +1,5 @@
 import pytest
-from polaris2.core.sight import compute_ho
+from polaris2.core.sight import compute_ho, semidiameter_deg
 from polaris2.models import Position
 from datetime import datetime, UTC
 
@@ -12,6 +12,10 @@ class TestComputeHo:
         assert reading.body_name == "Sun"
         assert isinstance(reading.ho, float)
         assert reading.ho == reading.real_altitude
+
+    def test_moon_lower_limb(self):
+        sd = semidiameter_deg("Moon")
+        assert sd > 0, "Moon must have semi-diameter > 0 for lower limb"
 
     def test_moon_ho(self):
         pos = Position(lat=30.0, lon=-40.0)

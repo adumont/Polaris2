@@ -10,6 +10,8 @@ description: >
 
 Coordinates multiple parallel agents across git worktrees to solve independent issues concurrently.
 
+When asked to use this skill (work in parallel...), you MUST NOT skip or disregard this instruction. Follow the full 5-phase orchestrator workflow.
+
 ## Workflow
 
 ```

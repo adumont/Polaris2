@@ -140,10 +140,10 @@ class TestAbsDegMin:
 
 class TestBodyLabel:
     def test_sun(self):
-        assert body_label("Sun") == "Sun"
+        assert body_label("Sun") == "Sun L"
 
     def test_moon(self):
-        assert body_label("Moon") == "Moon"
+        assert body_label("Moon") == "Moon L"
 
     def test_planet(self):
         assert body_label("Venus") == "Venus"
