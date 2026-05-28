@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 from polaris2.cartography import plot_chart
 from polaris2.cli.app import run_scenario
 from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
-from polaris2.core.reduction import recompute_fix
+from polaris2.core.reduction import recompute_fix, suggest_best_lops
 from polaris2.models import Position, Scenario
 from polaris2.utils.angles import body_label, format_angle, format_azimuth
 
@@ -56,6 +56,23 @@ def _draw_lop(sight, fix, dr, m):
         opacity=0.8,
         popup=f"{body_label(sight.body_name)}: I={sight.intercept_nmi:+.1f} nmi, Zn={format_azimuth(sight.azimut_zn)}",
     ).add_to(m)
+
+
+def _display_lop_suggestion(scenario: Scenario) -> None:
+    suggestion = suggest_best_lops(scenario.sight_reductions)
+    if not suggestion:
+        return
+    sun_included = any(r.body_name == "Sun" for r in scenario.sight_reductions)
+    lines = ["**Suggested best LOPs for fix:**"]
+    for k in sorted(suggestion):
+        indices, cond = suggestion[k]
+        names = [body_label(scenario.sight_reductions[i].body_name) for i in indices]
+        zns = [scenario.sight_reductions[i].azimut_zn for i in indices]
+        idx_str = ", ".join(str(i + 1) for i in indices)
+        lines.append(f"- **Best {k}:** #{idx_str} {names}  Zn={zns}  cond={cond}")
+    if sun_included:
+        lines.append("*(Sun always included — primary daytime body)*")
+    st.markdown("\n".join(lines))
 
 
 def _build_map(scenario: Scenario, fmt: str = "dms"):
@@ -158,6 +175,7 @@ def _display(scenario: Scenario, fmt: str = "dms"):
         "**I (nmi)** = Intercept (Ho − Hc, positive = Toward body) · "
         "**Zn** = Azimuth of body"
     )
+    _display_lop_suggestion(scenario)
     if st.button("Calculate Fix"):
         selected_indices = selection.selection.rows
         for i, r in enumerate(scenario.sight_reductions):

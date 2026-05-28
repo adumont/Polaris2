@@ -2,10 +2,12 @@ import math
 import pytest
 from polaris2.models import Position, Scenario, SightReduction, Fix
 from polaris2.core.reduction import (
+    _lop_condition_number,
     compute_fix_error,
     recompute_fix,
     solve_fix_least_squares,
     solve_fix_single,
+    suggest_best_lops,
 )
 from datetime import datetime, timezone, UTC
 
@@ -226,3 +228,99 @@ class TestRecomputeFix:
         )
         recompute_fix(scenario)
         assert scenario.fix is None
+
+
+class TestLopConditionNumber:
+    dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
+
+    def test_orthogonal_is_low(self):
+        reds = [
+            SightReduction(
+                body_name="Sun", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=0.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+            SightReduction(
+                body_name="Moon", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=90.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+        ]
+        cond = _lop_condition_number(reds)
+        assert cond == pytest.approx(1.0, abs=0.01)
+
+    def test_colinear_is_high(self):
+        reds = [
+            SightReduction(
+                body_name="Sun", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=45.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+            SightReduction(
+                body_name="Moon", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=45.1, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+        ]
+        cond = _lop_condition_number(reds)
+        assert cond > 100
+
+
+class TestSuggestBestLops:
+    dt = datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC)
+
+    def test_requires_sun_when_present(self):
+        reds = [
+            SightReduction(
+                body_name="Venus", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=0.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+            SightReduction(
+                body_name="Sun", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=90.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+            SightReduction(
+                body_name="Moon", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=180.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+            SightReduction(
+                body_name="Mars", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=270.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+        ]
+        suggestion = suggest_best_lops(reds)
+        assert 2 in suggestion
+        assert 3 in suggestion
+        for k in (2, 3):
+            indices, _ = suggestion[k]
+            assert 1 in indices  # Sun is at index 1 (0-based)
+
+    def test_fewer_than_two_returns_empty(self):
+        reds = [
+            SightReduction(
+                body_name="Sun", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=90.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+        ]
+        assert suggest_best_lops(reds) == {}
+
+    def test_no_sun_works_without_restriction(self):
+        reds = [
+            SightReduction(
+                body_name="Moon", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=0.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+            SightReduction(
+                body_name="Venus", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=90.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+            SightReduction(
+                body_name="Mars", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=45.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+        ]
+        suggestion = suggest_best_lops(reds)
+        assert 2 in suggestion
+        assert 3 in suggestion
+
+    def test_picks_orthogonal_pair(self):
+        reds = [
+            SightReduction(
+                body_name="Sun", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=0.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+            SightReduction(
+                body_name="Venus", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=10.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+            SightReduction(
+                body_name="Moon", hs=0, ho=0, hc=0, intercept_nmi=0, azimut_zn=90.0, lat_dr=0, lon_dr=0, utc=self.dt
+            ),
+        ]
+        suggestion = suggest_best_lops(reds)
+        indices, _ = suggestion[2]
+        # Sun at index 0 + Moon at index 2 (Zn 0+90=90° apart) is best
+        assert 0 in indices
+        assert 2 in indices

@@ -1,5 +1,6 @@
 import math
 from datetime import UTC, datetime
+from itertools import combinations
 
 import numpy as np
 
@@ -75,6 +76,47 @@ def recompute_fix(scenario: Scenario) -> None:
         fix = solve_fix_least_squares(selected, scenario.estimated_position)
     fix = compute_fix_error(fix, scenario.real_position)
     scenario.fix = fix
+
+
+_SINGULARITY_THRESHOLD = 1e-15
+_MIN_BODIES_SUGGEST = 2
+
+
+def _lop_condition_number(reductions: list[SightReduction]) -> float:
+    mat = [[math.cos(math.radians(r.azimut_zn)), math.sin(math.radians(r.azimut_zn))] for r in reductions]
+    a_mat = np.array(mat, dtype=float)
+    _, s, _ = np.linalg.svd(a_mat)
+    if s[-1] < _SINGULARITY_THRESHOLD:
+        return float("inf")
+    return s[0] / s[-1]
+
+
+def suggest_best_lops(reductions: list[SightReduction]) -> dict[int, tuple[list[int], float]]:
+    """Best subset of reductions for each k=2,3 by lowest condition number.
+
+    Always includes Sun if present. Returns dict of k -> (indices, cond_number).
+    """
+    n = len(reductions)
+    if n < _MIN_BODIES_SUGGEST:
+        return {}
+    sun_idx = next((i for i, r in enumerate(reductions) if r.body_name == "Sun"), None)
+    result = {}
+    for k in (2, 3):
+        if k > n:
+            continue
+        best = None
+        best_cond = float("inf")
+        for combo in combinations(range(n), k):
+            if sun_idx is not None and sun_idx not in combo:
+                continue
+            subset = [reductions[i] for i in combo]
+            cond = _lop_condition_number(subset)
+            if cond < best_cond:
+                best_cond = cond
+                best = combo
+        if best is not None:
+            result[k] = (list(best), round(best_cond, 1))
+    return result
 
 
 def compute_fix_error(fix: Fix, real_pos: Position) -> Fix:

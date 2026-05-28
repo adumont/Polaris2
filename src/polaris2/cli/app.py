@@ -11,7 +11,7 @@ from polaris2.config import (
     PLANET_BODIES,
 )
 from polaris2.core.almanac import body_alt_az
-from polaris2.core.reduction import compute_hc_zn, recompute_fix
+from polaris2.core.reduction import compute_hc_zn, recompute_fix, suggest_best_lops
 from polaris2.core.scenario import dr_position, random_daylight_datetime
 from polaris2.core.sight import compute_ho
 from polaris2.models import Position, Scenario
@@ -107,6 +107,7 @@ def _interactive_select(scenario: Scenario, fmt: str) -> None:
             print(
                 f"  {i + 1}. {sel} {body_label(r.body_name):12s}  I={r.intercept_nmi:+.1f}  Zn={format_azimuth(r.azimut_zn)}"
             )
+        _display_lop_suggestion(scenario)
         inp = input("\nEnter body numbers to use (comma-separated, e.g. '1,3,4') or 'all': ").strip()
         if not inp:
             break
@@ -123,6 +124,22 @@ def _interactive_select(scenario: Scenario, fmt: str) -> None:
         again = input("\nAdjust selection? (y/n): ").strip().lower()
         if again != "y":
             break
+
+
+def _display_lop_suggestion(scenario: Scenario) -> None:
+    suggestion = suggest_best_lops(scenario.sight_reductions)
+    if not suggestion:
+        return
+    sun_included = any(r.body_name == "Sun" for r in scenario.sight_reductions)
+    print("Suggested best LOPs for fix (lowest condition number = best azimuth geometry):")
+    for k in sorted(suggestion):
+        indices, cond = suggestion[k]
+        names = [scenario.sight_reductions[i].body_name for i in indices]
+        zns = [scenario.sight_reductions[i].azimut_zn for i in indices]
+        print(f"  Best {k}: #{','.join(str(i + 1) for i in indices)} {names}  Zn={zns}  cond={cond}")
+    if sun_included:
+        print("  (Sun always included — primary daytime body)")
+    print()
 
 
 def main():
@@ -157,6 +174,7 @@ def main():
             f"  {a:12s}  Hs = {format_angle(r.hs, fmt)}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  I = {r.intercept_nmi:+.1f} nmi  Zn = {format_azimuth(r.azimut_zn)}"
         )
     print()
+    _display_lop_suggestion(scenario)
     if args.interactive:
         _interactive_select(scenario, fmt)
     else:
