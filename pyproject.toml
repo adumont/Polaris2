@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Celestial navigation scenario generator and sight reduction simulator"
 requires-python = ">=3.11"
 dependencies = [
-    "celnav-core",
+    "celnav-core @ git+https://github.com/adumont/celnav-core.git",
     "skyfield",
     "pyyaml",
     "textual",
@@ -53,5 +53,3 @@ dev = [
     "pytest-cov>=7.1.0",
 ]
 
-[tool.uv.sources]
-celnav-core = { path = "../celnav-core", editable = true }

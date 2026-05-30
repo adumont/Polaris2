@@ -90,26 +90,12 @@ wheels = [
 [[package]]
 name = "celnav-core"
 version = "0.1.0"
-source = { editable = "../celnav-core" }
+source = { git = "https://github.com/adumont/celnav-core.git#1bfe011991c0e7455d99d3a2c0b13a1bec0ef076" }
 dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pydantic" },
     { name = "skyfield" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "matplotlib" },
-    { name = "numpy" },
-    { name = "pydantic", specifier = ">=2.0" },
-    { name = "skyfield" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest", specifier = ">=9.0.3" },
-    { name = "pytest-cov", specifier = ">=7.1.0" },
 ]
 
 [[package]]
@@ -1217,7 +1203,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "celnav-core", editable = "../celnav-core" },
+    { name = "celnav-core", git = "https://github.com/adumont/celnav-core.git" },
     { name = "folium" },
     { name = "pyyaml" },
     { name = "ruff", specifier = ">=0.15.12" },
