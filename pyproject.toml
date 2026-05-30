@@ -7,11 +7,11 @@ dependencies = [
     "celnav-core @ git+https://github.com/adumont/celnav-core.git",
     "skyfield",
     "pyyaml",
-    "textual",
-    "streamlit",
+    "textual>=8.2.7",
+    "streamlit>=1.58.0",
     "folium",
     "streamlit-folium",
-    "ruff>=0.15.12",
+    "ruff>=0.15.15",
 ]
 
 [project.scripts]
