@@ -1,5 +1,5 @@
 import pytest
-from polaris2.core.sight import dip_correction, semidiameter_deg
+from celnav_core.core.sight import dip_correction, semidiameter_deg
 
 
 class TestDipCorrection:

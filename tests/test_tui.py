@@ -7,7 +7,7 @@ import pytest
 from textual.widgets import RadioSet, RadioButton
 
 import polaris2.tui.app as tui_app
-from polaris2.models import Fix, Position, Scenario, SightReduction
+from celnav_core.models import Fix, Position, Scenario, SightReduction
 from polaris2.tui.app import Polaris2TUI, main
 
 
@@ -302,5 +302,3 @@ class TestPolaris2TUI:
                 pilot.app.exit()
 
         asyncio.run(_run())
-
-

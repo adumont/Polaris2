@@ -1,7 +1,7 @@
 import random
 import pytest
 from polaris2.cli.app import _select_best_bodies
-from polaris2.models import Position
+from celnav_core.models import Position
 from datetime import datetime, timezone, UTC
 
 

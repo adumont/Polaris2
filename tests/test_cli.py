@@ -4,9 +4,9 @@ from datetime import UTC, datetime
 import pytest
 
 from polaris2.cli.app import _apply_selection, run_scenario
-from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
-from polaris2.core.reduction import recompute_fix
-from polaris2.models import Position, Scenario, SightReduction
+from celnav_core.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
+from celnav_core.core.reduction import recompute_fix
+from celnav_core.models import Position, Scenario, SightReduction
 
 
 class TestRunScenario:

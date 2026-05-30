@@ -1,7 +1,7 @@
 import math
 import pytest
-from polaris2.models import Position, Scenario, SightReduction, Fix
-from polaris2.core.reduction import (
+from celnav_core.models import Position, Scenario, SightReduction, Fix
+from celnav_core.core.reduction import (
     _lop_condition_number,
     compute_fix_error,
     recompute_fix,

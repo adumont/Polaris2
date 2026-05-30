@@ -1,6 +1,6 @@
 import math
 import pytest
-from polaris2.utils.angles import (
+from celnav_core.utils.angles import (
     _abs_deg_min,
     deg_to_ddmmss,
     deg_to_ddmmmm,

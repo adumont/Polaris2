@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 
 from streamlit.testing.v1 import AppTest
 
-from polaris2.models import Fix, Position, Scenario, SightReduction
+from celnav_core.models import Fix, Position, Scenario, SightReduction
 
 
 class TestWebUI:

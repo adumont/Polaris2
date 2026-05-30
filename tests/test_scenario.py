@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 import pytest
 
 from polaris2.core.scenario import dr_position, random_atlantic_position, random_daylight_datetime
-from polaris2.models import Position
+from celnav_core.models import Position
 
 
 class TestDRPosition:

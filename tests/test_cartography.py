@@ -4,8 +4,8 @@ matplotlib.use("Agg")
 
 from datetime import UTC, datetime
 
-from polaris2.cartography import plot_chart
-from polaris2.models import Fix, Position, Scenario, SightReduction
+from celnav_core.cartography import plot_chart
+from celnav_core.models import Fix, Position, Scenario, SightReduction
 
 
 class TestPlotChart:

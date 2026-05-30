@@ -1,5 +1,5 @@
 import pytest
-from polaris2.models import Position, SextantReading, SightReduction, Fix, Scenario
+from celnav_core.models import Position, SextantReading, SightReduction, Fix, Scenario
 from datetime import datetime, timezone, UTC
 
 

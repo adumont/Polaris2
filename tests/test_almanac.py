@@ -1,6 +1,6 @@
 import pytest
-from polaris2.core.almanac import body_alt_az, body_alt_az_multiple, moon_alt_az, sun_alt_az, visible_bodies
-from polaris2.models import Position
+from celnav_core.core.almanac import body_alt_az, body_alt_az_multiple, moon_alt_az, sun_alt_az, visible_bodies
+from celnav_core.models import Position
 from datetime import datetime, timezone, UTC
 
 

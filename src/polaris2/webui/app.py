@@ -3,14 +3,14 @@ import random
 
 import folium
 import streamlit as st
+from celnav_core.cartography import plot_chart
+from celnav_core.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
+from celnav_core.core.reduction import recompute_fix, suggest_best_lops
+from celnav_core.models import Position, Scenario
+from celnav_core.utils.angles import body_label, format_angle, format_azimuth
 from streamlit_folium import st_folium
 
-from polaris2.cartography import plot_chart
 from polaris2.cli.app import run_scenario
-from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
-from polaris2.core.reduction import recompute_fix, suggest_best_lops
-from polaris2.models import Position, Scenario
-from polaris2.utils.angles import body_label, format_angle, format_azimuth
 
 
 def _setup_page():

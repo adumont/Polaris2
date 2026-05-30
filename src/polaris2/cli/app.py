@@ -2,7 +2,7 @@ import argparse
 import random
 from datetime import UTC, datetime
 
-from polaris2.config import (
+from celnav_core.config import (
     BEST_ALT_MAX,
     BEST_ALT_MIN,
     DEFAULT_ERROR_NMI,
@@ -10,12 +10,13 @@ from polaris2.config import (
     NAVPAC_STAR_INDEX,
     PLANET_BODIES,
 )
-from polaris2.core.almanac import body_alt_az
-from polaris2.core.reduction import compute_hc_zn, recompute_fix, suggest_best_lops
+from celnav_core.core.almanac import body_alt_az
+from celnav_core.core.reduction import compute_hc_zn, recompute_fix, suggest_best_lops
+from celnav_core.core.sight import compute_ho
+from celnav_core.models import Position, Scenario
+from celnav_core.utils.angles import body_label, format_angle, format_azimuth
+
 from polaris2.core.scenario import dr_position, random_daylight_datetime
-from polaris2.core.sight import compute_ho
-from polaris2.models import Position, Scenario
-from polaris2.utils.angles import body_label, format_angle, format_azimuth
 from polaris2.utils.io import save_scenario
 
 _MIN_VISIBLE_ALT = 0.0

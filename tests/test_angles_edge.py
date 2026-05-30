@@ -1,5 +1,5 @@
 import pytest
-from polaris2.utils.angles import parse_angle
+from celnav_core.utils.angles import parse_angle
 
 
 class TestParseAngleEdgeCases:

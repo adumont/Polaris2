@@ -1,6 +1,6 @@
 import pytest
-from polaris2.core.sight import compute_ho, semidiameter_deg
-from polaris2.models import Position
+from celnav_core.core.sight import compute_ho, semidiameter_deg
+from celnav_core.models import Position
 from datetime import datetime, UTC
 
 

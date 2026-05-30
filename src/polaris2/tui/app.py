@@ -1,6 +1,10 @@
 import random
 from contextlib import suppress
 
+from celnav_core.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
+from celnav_core.core.reduction import _SUGGEST_BEST, _SUGGEST_FALLBACK, recompute_fix, suggest_best_lops
+from celnav_core.models import Position, Scenario, SightReduction
+from celnav_core.utils.angles import body_label, format_angle, format_azimuth
 from textual import events, on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
@@ -8,10 +12,6 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Header, Input, Label, RadioButton, RadioSet, Static
 
 from polaris2.cli.app import run_scenario
-from polaris2.config import DEFAULT_ERROR_NMI, DEFAULT_HE_FT
-from polaris2.core.reduction import _SUGGEST_BEST, _SUGGEST_FALLBACK, recompute_fix, suggest_best_lops
-from polaris2.models import Position, Scenario, SightReduction
-from polaris2.utils.angles import body_label, format_angle, format_azimuth
 
 
 class SightEditScreen(ModalScreen):

@@ -1,8 +1,7 @@
 from pathlib import Path
 
 import yaml
-
-from polaris2.models import Scenario
+from celnav_core.models import Scenario
 
 
 def save_scenario(scenario: Scenario, path: str | Path) -> None:

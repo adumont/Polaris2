@@ -1,6 +1,6 @@
 import pytest
 from polaris2.utils.io import save_scenario, load_scenario
-from polaris2.models import Position, Scenario
+from celnav_core.models import Position, Scenario
 from datetime import datetime, timezone, UTC
 from pathlib import Path
 

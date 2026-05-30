@@ -2,11 +2,10 @@ import math
 import random
 from datetime import UTC, datetime, timedelta
 
+from celnav_core.config import EARTH_RADIUS_NMI
+from celnav_core.core.ephemeris import earth, ephemeris, timescale
+from celnav_core.models import Position
 from skyfield.api import wgs84
-
-from polaris2.config import EARTH_RADIUS_NMI
-from polaris2.core.ephemeris import earth, ephemeris, timescale
-from polaris2.models import Position
 
 
 def _sun_above_horizon(pos: Position, dt: datetime) -> bool:
