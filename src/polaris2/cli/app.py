@@ -1,4 +1,5 @@
 import argparse
+import random
 from contextlib import suppress
 from datetime import UTC, datetime
 
@@ -55,6 +56,8 @@ def run_scenario(
     he_ft: float = DEFAULT_HE_FT,
     seed: int | None = None,
 ) -> Scenario:
+    if seed is not None:
+        random.seed(seed)
     for _attempt in range(20):
         dt, real_pos = random_daylight_datetime()
         dr = dr_position(real_pos, error_nmi)

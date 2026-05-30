@@ -37,6 +37,11 @@ class TestDRPosition:
         assert dr1.lat == pytest.approx(dr2.lat)
         assert dr1.lon == pytest.approx(dr2.lon)
 
+    def test_nonzero_error(self):
+        real = Position(lat=30.0, lon=-40.0)
+        dr = dr_position(real, 5.0)
+        assert (dr.lat, dr.lon) != (real.lat, real.lon)
+
 
 class TestRandomAtlanticPosition:
     def test_bounds(self):
