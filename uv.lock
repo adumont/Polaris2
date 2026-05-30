@@ -106,6 +106,12 @@ requires-dist = [
     { name = "skyfield" },
 ]
 
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=9.0.3" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+]
+
 [[package]]
 name = "certifi"
 version = "2026.4.22"
