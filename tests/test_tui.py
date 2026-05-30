@@ -303,34 +303,4 @@ class TestPolaris2TUI:
 
         asyncio.run(_run())
 
-    def test_update_readings(self):
-        app = Polaris2TUI()
-        s = Scenario(
-            real_position=Position(lat=35.0, lon=-40.0),
-            estimated_position=Position(lat=35.1, lon=-39.9),
-            dr_error_nmi=5.0,
-            utc=datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC),
-            he_ft=10.0,
-            sextant_readings=[
-                __import__("polaris2.models", fromlist=["SextantReading"]).SextantReading(
-                    body_name="Sun",
-                    hs=45.0,
-                    ho=45.0,
-                    utc=datetime(2026, 6, 21, 12, 0, 0, tzinfo=UTC),
-                    real_altitude=45.0,
-                    correction_total=-0.016,
-                ),
-            ],
-        )
-        rows = []
 
-        class MockDataTable:
-            def clear(self):
-                pass
-
-            def add_row(self, *args, **kwargs):
-                rows.append(args)
-
-        app.query_one = lambda *a, **kw: MockDataTable()
-        app._update_readings(s)
-        assert len(rows) == 1

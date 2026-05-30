@@ -74,3 +74,25 @@ RadioSet {
     height: auto;
     margin: 0 1;
 }
+
+.reductions-row {
+    height: auto;
+    padding: 0 1;
+}
+
+.reductions-row > #reductions-table {
+    width: 1fr;
+    margin: 0 0 0 1;
+}
+
+.reductions-buttons {
+    width: auto;
+    height: auto;
+    max-height: 6;
+    align: center middle;
+}
+
+.reductions-buttons > Button {
+    width: 16;
+    margin: 0 1;
+}

@@ -100,18 +100,15 @@ class Polaris2TUI(App):
                 yield Static("Real: —", id="real-pos", classes="pos-card")
                 yield Static("DR: —", id="dr-pos", classes="pos-card")
                 yield Static("Fix: —", id="fix-pos", classes="pos-card")
-            yield Static("Sextant Readings", classes="section-title")
-            yield DataTable(id="readings-table", classes="data-table")
             yield Static("Sight Reductions", classes="section-title")
-            yield DataTable(id="reductions-table", classes="data-table")
-            with Horizontal():
-                yield Button("Edit Sight Reduction", id="edit-btn", variant="default", disabled=True)
-                yield Button("Recalculate Fix", id="recalc-btn", variant="default", disabled=True)
+            with Horizontal(classes="reductions-row"):
+                yield DataTable(id="reductions-table", classes="data-table")
+                with Vertical(classes="reductions-buttons"):
+                    yield Button("Edit SR", id="edit-btn", variant="default", disabled=True)
+                    yield Button("Recalc Fix", id="recalc-btn", variant="default", disabled=True)
             yield Static("", id="fix-info", classes="info-panel")
 
     def on_mount(self) -> None:
-        tbl = self.query_one("#readings-table", DataTable)
-        tbl.add_columns("Body", "Hs", "Ho", "Corr (deg)")
         tbl = self.query_one("#reductions-table", DataTable)
         tbl.cursor_type = "row"
         tbl.add_columns(
@@ -212,7 +209,6 @@ class Polaris2TUI(App):
             return
         self._update_info(s)
         self._update_positions(s)
-        self._update_readings(s)
         self._update_reductions(s)
         self._update_fix(s)
 
@@ -230,17 +226,6 @@ class Polaris2TUI(App):
             )
         else:
             self.query_one("#fix-pos", Static).update("Fix: —")
-
-    def _update_readings(self, s: Scenario) -> None:
-        tbl = self.query_one("#readings-table", DataTable)
-        tbl.clear()
-        for r in s.sextant_readings:
-            tbl.add_row(
-                body_label(r.body_name),
-                format_angle(r.hs, self.fmt),
-                format_angle(r.ho, self.fmt),
-                f"{r.correction_total:+.4f}",
-            )
 
     def _update_reductions(self, s: Scenario) -> None:
         tbl = self.query_one("#reductions-table", DataTable)
