@@ -33,32 +33,29 @@ uv run polaris2-tui                       # Textual TUI (placeholder)
 ## Architecture
 
 ```
+celnav-core/          ← shared sibling package (celnav-core on PyPI)
+  config, models, ephemeris, almanac, sight, reduction, cartography, angles
+
 src/polaris2/
-├── config.py        Constants
-├── models.py        Pydantic models
-├── utils/
-│   ├── angles.py    DD.MMSS <-> float conversions
-│   └── io.py        YAML persistence
-├── core/
-│   ├── scenario.py  Position/datetime generation
-│   ├── almanac.py   Skyfield ephemeris queries
-│   ├── sight.py     Sextant reading computation
-│   └── reduction.py Sight reduction + LSQ fix solver
-├── cli/app.py       CLI entry point
-├── tui/app.py       Textual TUI placeholder
-└── webui/app.py     Streamlit + folium map
+├── utils/io.py       YAML persistence
+├── core/scenario.py  Scenario generation
+├── cli/app.py        CLI entry point
+├── tui/app.py        Textual TUI
+└── webui/app.py      Streamlit + folium map
 ```
+
+Core nav logic (Skyfield queries, sight reduction, fix solving, charts) is in the **celnav-core** package — shared with navpac-simulator.
 
 ## How it works
 
 1. Generates a random position in the Atlantic (10-50°N, 10-80°W) and a daytime UTC datetime
-2. Picks a DR position at a random bearing at `--error` nmi from real
+2. Picks a DR position at a random bearing at \\`--error\\` nmi from real
 3. Identifies visible bodies (Sun, Moon, stars above 10° altitude)
 4. Selects best bodies (30-60° altitude range preferred)
-5. Computes apparent altitude at real position → Ho
-6. Computes apparent altitude at DR position → Hc, Zn
+5. Computes apparent altitude at real position → Ho  *(celnav-core)*
+6. Computes apparent altitude at DR position → Hc, Zn *(celnav-core)*
 7. Intercept I = (Ho − Hc) × 60 (nmi). Positive I = toward the body (in Zn direction)
-8. Iterative least-squares fix: A·x = I, where A = [cos Zn, sin Zn]
+8. Iterative least-squares fix: A·x = I, where A = [cos Zn, sin Zn] *(celnav-core)*
 9. Fix error computed via haversine formula
 
 ## Testing
@@ -72,5 +69,5 @@ uv run ruff format                # format
 
 ## Dependencies
 
-- Skyfield (ephemeris), Pydantic (models), NumPy/SciPy (solver)
+- **celnav-core** (shared: Skyfield, Pydantic, NumPy, Matplotlib)
 - Streamlit + folium (WebUI), Textual (TUI placeholder)

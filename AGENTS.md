@@ -29,24 +29,32 @@ Diagnose, prove cause. Fix, prove fixed.
 - Never `git add .`, only touched files
 - Never `--no-ff` on merges — fast-forward only
 
+# Related projects
+
+- **celnav-core** (sibling C:\Projects\celnav-core) — shared celestial nav library
+  - config, models, ephemeris, almanac, sight, reduction, cartography, angles
+  - Added via `[tool.uv.sources]` path dep in pyproject.toml
+- **navpac-simulator** (future) — sibling app consuming celnav-core
+
+# Deps
+
+- Editable install: `uv sync` resolves celnav-core from local path
+
 # Architecture
 
 src/polaris2/
-├── config.py        # Constants: NAVPAC star index, body radii, bounds, defaults
-├── models.py        # Pydantic: Position, SextantReading, SightReduction, Fix, Scenario
 ├── utils/
-│   ├── angles.py    # DD.MMSS <-> DD.MMmm <-> float deg conversions
 │   └── io.py        # YAML save/load for Scenario
 ├── core/
-│   ├── scenario.py  # Random Atlantic pos, daylight datetime, DR at error
-│   ├── almanac.py   # Skyfield: body alt/az via observer=earth+latlon
-│   ├── sight.py     # Hs = raw sextant alt + dip + SD → Ho = Skyfield geometric alt
-│   └── reduction.py # Hc, Zn, intercept=Ho-Hc, iterative LSQ fix
+│   └── scenario.py  # Random Atlantic pos, daylight datetime, DR at error
 ├── cli/
 │   └── app.py       # argparse entry point
-├── tui/             # placeholder
+├── tui/
+│   └── app.py       # Textual TUI (placeholder)
 └── webui/
     └── app.py       # Streamlit: dataframes + folium map
+
+Core nav logic lives in **celnav-core** (import as `celnav_core.*`).
 
 # Key decisions
 
