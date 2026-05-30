@@ -1,5 +1,5 @@
 import argparse
-import random
+from contextlib import suppress
 from datetime import UTC, datetime
 
 from celnav_core.config import (
@@ -29,12 +29,10 @@ def _visible_bodies_above(dt: datetime, pos: Position) -> dict[str, float]:
     names = ["Sun", "Moon"] + list(PLANET_BODIES) + list(NAVPAC_STAR_INDEX)
     results = {}
     for name in names:
-        try:
+        with suppress(Exception):
             alt, _ = body_alt_az(name, dt, pos)
             if alt > _MIN_VISIBLE_ALT:
                 results[name] = alt
-        except Exception:
-            pass
     return results
 
 
@@ -57,8 +55,6 @@ def run_scenario(
     he_ft: float = DEFAULT_HE_FT,
     seed: int | None = None,
 ) -> Scenario:
-    if seed is not None:
-        random.seed(seed)
     for _attempt in range(20):
         dt, real_pos = random_daylight_datetime()
         dr = dr_position(real_pos, error_nmi)
@@ -106,7 +102,8 @@ def _interactive_select(scenario: Scenario, fmt: str) -> None:
         for i, r in enumerate(scenario.sight_reductions):
             sel = "[x]" if r.selected else "[ ]"
             print(
-                f"  {i + 1}. {sel} {body_label(r.body_name):12s}  I={r.intercept_nmi:+.1f}  Zn={format_azimuth(r.azimut_zn)}"
+                f"  {i + 1}. {sel} {body_label(r.body_name):12s}"
+                f"  I={r.intercept_nmi:+.1f}  Zn={format_azimuth(r.azimut_zn)}"
             )
         _display_lop_suggestion(scenario)
         inp = input("\nEnter body numbers to use (comma-separated, e.g. '1,3,4') or 'all': ").strip()
@@ -165,14 +162,18 @@ def main():
     for r in scenario.sextant_readings:
         a = body_label(r.body_name)
         print(
-            f"  {a:12s}  Hs = {format_angle(r.hs, fmt)}  Ho = {format_angle(r.ho, fmt)}  (corr = {r.correction_total:+.4f} deg)"
+            f"  {a:12s}  Hs = {format_angle(r.hs, fmt)}"
+            f"  Ho = {format_angle(r.ho, fmt)}  (corr = {r.correction_total:+.4f} deg)"
         )
     print()
     print("Sight Reductions (from DR):")
     for r in scenario.sight_reductions:
         a = body_label(r.body_name)
         print(
-            f"  {a:12s}  Hs = {format_angle(r.hs, fmt)}  Hc = {format_angle(r.hc, fmt)}  Ho = {format_angle(r.ho, fmt)}  I = {r.intercept_nmi:+.1f} nmi  Zn = {format_azimuth(r.azimut_zn)}"
+            f"  {a:12s}  Hs = {format_angle(r.hs, fmt)}"
+            f"  Hc = {format_angle(r.hc, fmt)}"
+            f"  Ho = {format_angle(r.ho, fmt)}"
+            f"  I = {r.intercept_nmi:+.1f} nmi  Zn = {format_azimuth(r.azimut_zn)}"
         )
     print()
     _display_lop_suggestion(scenario)
